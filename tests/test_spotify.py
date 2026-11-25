@@ -248,6 +248,78 @@ class SpotifyWidgetTests(unittest.TestCase):
         self.assertNotIn(">NOW PLAYING</text>", body)
         self.assertIn('width="600" height="190"', body)
 
+    def test_adaptive_title_keeps_short_metadata_large_and_single_line(self):
+        data = spotify.music_text_layout("November", "TWO LANES")
+        self.assertEqual(data["title_lines"], ("November",))
+        self.assertEqual(data["title_font_size"], 29)
+        self.assertEqual(data["artist_display"], "TWO LANES")
+        self.assertEqual(data["artist_font_size"], 18)
+        self.assertEqual(data["artist_y"], 126)
+
+    def test_long_title_wraps_to_two_lines_without_losing_information(self):
+        long_title = "The Incredible Adventures of an Astronaut Walking Through the Stars"
+        data = spotify.music_text_layout(long_title, "An Artist")
+        self.assertEqual(len(data["title_lines"]), 2)
+        self.assertEqual(" ".join(data["title_lines"]), long_title)
+        self.assertLessEqual(data["title_font_size"], 25)
+        self.assertEqual(data["artist_y"], 145)
+        for line in data["title_lines"]:
+            self.assertLessEqual(spotify.approximate_text_width(
+                line, data["title_font_size"], bold=True
+            ), spotify.TEXT_MAX_WIDTH)
+
+    def test_very_long_metadata_is_trimmed_only_after_adapting(self):
+        long_title = "GIGANTIC " + "SUPERCALIFRAGILISTICEXPIALIDOCIOUS" * 18
+        long_artist = "International Orchestra of Seriously Unreasonably Long Names " * 9
+        data = spotify.music_text_layout(long_title, long_artist)
+        self.assertEqual(len(data["title_lines"]), 2)
+        self.assertTrue(data["title_lines"][1].endswith("…"))
+        self.assertTrue(data["artist_display"].endswith("…"))
+        self.assertEqual(data["artist_font_size"], 14)
+        self.assertLessEqual(spotify.approximate_text_width(
+            data["title_lines"][1], data["title_font_size"], bold=True
+        ), spotify.TEXT_MAX_WIDTH)
+        self.assertLessEqual(spotify.approximate_text_width(
+            data["artist_display"], data["artist_font_size"]
+        ), spotify.TEXT_MAX_WIDTH)
+
+    def test_long_names_render_inside_metadata_clip_with_accessible_full_title(self):
+        import xml.etree.ElementTree as ET
+        long_title = "The Incredible Adventures of an Astronaut Walking Through the Stars"
+        sample = track(long_title)
+        sample["artists"] = [{"name": "A Remarkably Long Ensemble of Artists from Around the Universe" * 4}]
+        with patch.object(spotify, "spotify_get", return_value={
+            "is_playing": True, "item": sample
+        }):
+            response = spotify.app.test_client().get("/")
+        root = ET.fromstring(response.get_data(as_text=True))
+        ns = "{http://www.w3.org/2000/svg}"
+        metadata = root.find(f".//{ns}g[@id='metadata-text']")
+        self.assertEqual(metadata.get("clip-path"), "url(#metadata-clip)")
+        clip = root.find(f".//{ns}clipPath[@id='metadata-clip']/{ns}rect")
+        self.assertIsNotNone(clip)
+        self.assertEqual(clip.get("width"), "368")
+        titles = metadata.findall(f"{ns}text[@data-role='track-title']")
+        artist = metadata.find(f"{ns}text[@data-role='track-artist']")
+        self.assertEqual(len(titles), 2)
+        self.assertEqual(artist.get("y"), "145")
+        self.assertEqual(artist.get("font-size"), "14")
+        self.assertTrue(artist.text.endswith("…"))
+        self.assertIn(long_title, root.find(f"{ns}title").text)
+
+    def test_metadata_normalizes_newlines_and_handles_wide_unicode(self):
+        title = "  Música\n  特别长的歌名大世界星辰世界世界世界    "
+        artist = "  Uma   Banda\r\ncom  vários   artistas  "
+        data = spotify.music_text_layout(title, artist)
+        self.assertTrue(data["title_lines"][0].startswith("Música"))
+        self.assertNotIn("\n", " ".join(data["title_lines"]))
+        self.assertNotIn("\r", data["artist_display"])
+        self.assertFalse("  " in data["artist_display"])
+        self.assertTrue(all(
+            spotify.approximate_text_width(line, data["title_font_size"], bold=True)
+            <= spotify.TEXT_MAX_WIDTH for line in data["title_lines"]
+        ))
+
     def test_paused_track_survives_recent_history_error(self):
         current = {"is_playing": False, "item": track("Paused Song")}
         with patch.object(spotify, "spotify_get", side_effect=[
