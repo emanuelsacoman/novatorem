@@ -375,6 +375,80 @@ class SpotifyWidgetTests(unittest.TestCase):
         self.assertEqual(len(equalizer.findall(f"{ns}rect")), 50)
         self.assertEqual(len(equalizer.findall(f".//{ns}animate")), 0)
 
+    def test_background_glows_and_trails_animate_independently_of_playback(self):
+        import xml.etree.ElementTree as ET
+
+        with patch.object(spotify, "spotify_get", side_effect=[
+            None, {"items": []}
+        ]):
+            svg = spotify.app.test_client().get("/").get_data(as_text=True)
+        ns = "{http://www.w3.org/2000/svg}"
+        root = ET.fromstring(svg)
+        effects = root.find(f".//{ns}g[@id='background-effects']")
+        self.assertIsNotNone(effects)
+        orbs = effects.find(f"{ns}g[@id='ambient-glow-orbs']")
+        self.assertIsNotNone(orbs)
+
+        for name in ("glow-orb-primary", "glow-orb-secondary"):
+            ellipse = orbs.find(f"{ns}ellipse[@id='{name}']")
+            self.assertIsNotNone(ellipse)
+            self.assertTrue(ellipse.get("fill").startswith("url(#glow-orb-"))
+            animations = {
+                anim.get("attributeName"): anim
+                for anim in ellipse.findall(f"{ns}animate")
+            }
+            self.assertEqual(set(animations), {"cx", "cy", "opacity"})
+            for animation in animations.values():
+                self.assertEqual(animation.get("repeatCount"), "indefinite")
+                values = animation.get("values").split(";")
+                self.assertEqual(values[0], values[-1])
+                self.assertGreater(len(set(values)), 2)
+
+        wave = root.find(f".//{ns}g[@id='background-wave-trails']")
+        self.assertIsNotNone(wave)
+        motion = wave.find(f"{ns}animateTransform")
+        self.assertEqual(motion.get("attributeName"), "transform")
+        self.assertEqual(motion.get("type"), "translate")
+        self.assertEqual(motion.get("repeatCount"), "indefinite")
+        self.assertEqual(motion.get("values").split(";")[0],
+                         motion.get("values").split(";")[-1])
+        self.assertGreaterEqual(len(wave.findall(f"{ns}path")), 3)
+
+        particles = root.find(f".//{ns}g[@id='background-particles']")
+        self.assertIsNotNone(particles.find(f"{ns}animateTransform"))
+
+        clipped_content = root.find(f"{ns}g[@clip-path='url(#card-clip)']")
+        children = list(clipped_content)
+        self.assertLess(children.index(effects),
+                        children.index(root.find(f".//{ns}g[@id='equalizer-wave']")))
+        self.assertEqual(len(root.findall(f".//{ns}g[@id='equalizer-wave']/{ns}rect")), 50)
+        self.assertEqual(len(root.findall(f".//{ns}g[@id='equalizer-wave']//{ns}animate")), 0)
+
+    def test_background_glow_colors_follow_the_cover(self):
+        import xml.etree.ElementTree as ET
+
+        palette = {
+            "accent": "dd3355", "accent_2": "ee6655",
+            "accent_3": "ba4477", "accent_4": "ffbb66"
+        }
+        with patch.object(spotify, "spotify_get", return_value={
+            "is_playing": True, "item": track()
+        }), patch.object(spotify, "album_artwork", return_value=("", palette)):
+            svg = spotify.app.test_client().get("/").get_data(as_text=True)
+
+        root = ET.fromstring(svg)
+        ns = "{http://www.w3.org/2000/svg}"
+        primary = root.find(f".//{ns}radialGradient[@id='glow-orb-primary']")
+        secondary = root.find(f".//{ns}radialGradient[@id='glow-orb-secondary']")
+        self.assertEqual(
+            [stop.get("stop-color") for stop in primary.findall(f"{ns}stop")],
+            ["#dd3355", "#ffbb66", "#ffbb66"],
+        )
+        self.assertEqual(
+            [stop.get("stop-color") for stop in secondary.findall(f"{ns}stop")],
+            ["#ee6655", "#ba4477", "#ba4477"],
+        )
+
     def test_empty_state_has_static_equalizer(self):
         with patch.object(spotify, "spotify_get", side_effect=[
             None, {"items": []}
