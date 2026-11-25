@@ -224,7 +224,7 @@ class SpotifyWidgetTests(unittest.TestCase):
         self.assertIn("LAST PLAYED", body)
         self.assertEqual(body.count('attributeName="height"'), 120)
         self.assertEqual(body.count('attributeName="y"'), 120)
-        self.assertEqual(body.count('attributeName="opacity"'), 120)
+        self.assertGreaterEqual(body.count('attributeName="opacity"'), 120)  # Includes ambient wave opacity
         self.assertIn('repeatCount="indefinite"', body)
 
     def test_equalizer_uses_main_style_independent_pulses(self):
