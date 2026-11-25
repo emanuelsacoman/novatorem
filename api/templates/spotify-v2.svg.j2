@@ -1,114 +1,610 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="520" height="160" viewBox="0 0 520 160" role="img" aria-labelledby="spotify-title spotify-desc">
-  <title id="spotify-title">{{ label|e }} — {{ title|e }}</title>
-  <desc id="spotify-desc">Spotify status: {{ label|e }}. {{ title|e }} by {{ artist|e }}.</desc>
+<svg xmlns="http://www.w3.org/2000/svg" width="600" height="190" viewBox="0 0 600 190"
+     role="img" aria-labelledby="music-title music-description">
+  <title id="music-title">{{ title|e }} — {{ artist|e }}</title>
+  <desc id="music-description">Spotify music card. {{ label|e }}. Decorative animated equalizer background; not actual audio levels.</desc>
   <defs>
-    <linearGradient id="ambient" x1="0" y1="0" x2="1" y2="1">
-      <stop offset="0%" stop-color="#{{ accent }}" stop-opacity=".22"/>
-      <stop offset="85%" stop-color="#{{ background_color }}" stop-opacity="0"/>
+    <clipPath id="card-clip"><rect x="1" y="1" width="598" height="188" rx="21"/></clipPath>
+    <clipPath id="cover-clip"><rect x="23" y="22" width="146" height="146" rx="16"/></clipPath>
+    <linearGradient id="base-gradient" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#142027"/>
+      <stop offset="55%" stop-color="#{{ background_color }}"/>
+      <stop offset="100%" stop-color="#06140f"/>
     </linearGradient>
+    <radialGradient id="ambient-album" cx=".13" cy=".2" r=".79">
+      <stop offset="0%" stop-color="#{{ accent }}" stop-opacity=".48"/>
+      <stop offset="47%" stop-color="#{{ accent }}" stop-opacity=".14"/>
+      <stop offset="100%" stop-color="#{{ accent }}" stop-opacity="0"/>
+    </radialGradient>
+    <radialGradient id="ambient-green" cx=".80" cy=".81" r=".67">
+      <stop offset="0%" stop-color="#16e39a" stop-opacity=".29"/>
+      <stop offset="58%" stop-color="#18c66d" stop-opacity=".08"/>
+      <stop offset="100%" stop-color="#18c66d" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="bars-gradient" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#64ffba" stop-opacity=".45"/>
+      <stop offset="60%" stop-color="#17dc80" stop-opacity=".27"/>
+      <stop offset="100%" stop-color="#17dc80" stop-opacity=".06"/>
+    </linearGradient>
+    <linearGradient id="glass" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#fff" stop-opacity=".10"/>
+      <stop offset="36%" stop-color="#fff" stop-opacity="0"/>
+      <stop offset="100%" stop-color="#000" stop-opacity=".14"/>
+    </linearGradient>
+    <linearGradient id="text-shade" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%" stop-color="#071014" stop-opacity=".76"/>
+      <stop offset="70%" stop-color="#071014" stop-opacity=".61"/>
+      <stop offset="100%" stop-color="#071014" stop-opacity=".12"/>
+    </linearGradient>
+    <linearGradient id="wave-stroke" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%" stop-color="#{{ accent }}" stop-opacity=".10"/>
+      <stop offset="40%" stop-color="#17ffc1" stop-opacity=".55"/>
+      <stop offset="100%" stop-color="#00b976" stop-opacity=".13"/>
+    </linearGradient>
+    <filter id="soft-blur" x="-30%" y="-80%" width="160%" height="260%">
+      <feGaussianBlur stdDeviation="7"/>
+    </filter>
+    <filter id="cover-shadow" x="-40%" y="-40%" width="180%" height="180%">
+      <feGaussianBlur stdDeviation="10"/>
+    </filter>
     <linearGradient id="cover-fallback" x1="0" y1="0" x2="1" y2="1">
-      <stop offset="0" stop-color="#{{ accent }}" stop-opacity=".8"/>
-      <stop offset="1" stop-color="#161b22"/>
+      <stop offset="0%" stop-color="#{{ accent }}"/>
+      <stop offset="100%" stop-color="#0b171f"/>
     </linearGradient>
-    <clipPath id="album-clip"><rect x="20" y="31" width="98" height="98" rx="12"/></clipPath>
   </defs>
 
-  <rect x="0.5" y="0.5" width="519" height="159" rx="18" fill="#{{ background_color }}" stroke="#{{ border_color }}"/>
-  <rect x="1" y="1" width="518" height="158" rx="17" fill="url(#ambient)"/>
+  <rect width="600" height="190" rx="22" fill="#{{ background_color }}"/>
+  <g clip-path="url(#card-clip)">
+    <rect width="600" height="190" fill="url(#base-gradient)"/>
+    <rect width="600" height="190" fill="url(#ambient-album)"/>
+    <rect width="600" height="190" fill="url(#ambient-green)"/>
+    <!-- Colored glass, a light bloom and waveform trails behind all content. -->
+    <path d="M-30 139 C90 80 145 33 240 63 S425 160 635 37" fill="none" stroke="url(#wave-stroke)"
+          stroke-width="15" opacity=".30" filter="url(#soft-blur)"/>
+    <path d="M-30 130 C90 71 150 28 245 57 S430 146 635 32" fill="none"
+          stroke="url(#wave-stroke)" stroke-width="2" opacity=".55">
+      {% if state in ('playing', 'recent') %}
+      <animate attributeName="opacity" values=".18;.60;.32;.18"
+               dur="{% if state == 'playing' %}5s{% else %}9s{% endif %}" repeatCount="indefinite"/>
+      {% endif %}
+    </path>
+    <path d="M-20 168 C125 146 232 171 338 151 S527 109 630 127" fill="none"
+          stroke="#1ed760" stroke-width="1.5" opacity=".18"/>
 
-  <rect x="20" y="31" width="98" height="98" rx="12" fill="url(#cover-fallback)"/>
-  {% if album_image %}
-  <image x="20" y="31" width="98" height="98" href="{{ album_image|e }}" preserveAspectRatio="xMidYMid slice" clip-path="url(#album-clip)"/>
-  {% else %}
-  <circle cx="69" cy="80" r="26" fill="#ffffff" fill-opacity=".15"/>
-  <path d="M73 59v38a11 11 0 1 1-7-10V68l21-5v-9z" fill="#ffffff" fill-opacity=".85"/>
-  {% endif %}
+    <!-- Background equalizer; animated at the bottom, always behind the text veil. -->
+    <g opacity="{% if state in ('playing', 'recent') %}.85{% else %}.34{% endif %}" fill="url(#bars-gradient)">
+      <rect x="6.0" y="162" width="4.4" height="19" rx="2.2">
+        {% if state in ('playing', 'recent') %}
+        <animate attributeName="height" values="19;8;23;11;19"
+                 dur="{% if state == 'playing' %}0.98s{% else %}2.80s{% endif %}"
+                 begin="0.00s" repeatCount="indefinite"/>
+        <animate attributeName="y" values="162;173;158;170;162"
+                 dur="{% if state == 'playing' %}0.98s{% else %}2.80s{% endif %}"
+                 begin="0.00s" repeatCount="indefinite"/>
+        {% endif %}
+      </rect>
+      <rect x="18.4" y="152" width="4.4" height="29" rx="2.2">
+        {% if state in ('playing', 'recent') %}
+        <animate attributeName="height" values="29;12;35;17;29"
+                 dur="{% if state == 'playing' %}1.17s{% else %}3.11s{% endif %}"
+                 begin="-0.14s" repeatCount="indefinite"/>
+        <animate attributeName="y" values="152;169;146;164;152"
+                 dur="{% if state == 'playing' %}1.17s{% else %}3.11s{% endif %}"
+                 begin="-0.14s" repeatCount="indefinite"/>
+        {% endif %}
+      </rect>
+      <rect x="30.8" y="145" width="4.4" height="36" rx="2.2">
+        {% if state in ('playing', 'recent') %}
+        <animate attributeName="height" values="36;15;43;22;36"
+                 dur="{% if state == 'playing' %}1.36s{% else %}3.42s{% endif %}"
+                 begin="-0.28s" repeatCount="indefinite"/>
+        <animate attributeName="y" values="145;166;138;159;145"
+                 dur="{% if state == 'playing' %}1.36s{% else %}3.42s{% endif %}"
+                 begin="-0.28s" repeatCount="indefinite"/>
+        {% endif %}
+      </rect>
+      <rect x="43.2" y="142" width="4.4" height="39" rx="2.2">
+        {% if state in ('playing', 'recent') %}
+        <animate attributeName="height" values="39;16;47;23;39"
+                 dur="{% if state == 'playing' %}1.55s{% else %}3.73s{% endif %}"
+                 begin="-0.42s" repeatCount="indefinite"/>
+        <animate attributeName="y" values="142;165;134;158;142"
+                 dur="{% if state == 'playing' %}1.55s{% else %}3.73s{% endif %}"
+                 begin="-0.42s" repeatCount="indefinite"/>
+        {% endif %}
+      </rect>
+      <rect x="55.6" y="143" width="4.4" height="38" rx="2.2">
+        {% if state in ('playing', 'recent') %}
+        <animate attributeName="height" values="38;16;46;23;38"
+                 dur="{% if state == 'playing' %}1.74s{% else %}4.04s{% endif %}"
+                 begin="-0.56s" repeatCount="indefinite"/>
+        <animate attributeName="y" values="143;165;135;158;143"
+                 dur="{% if state == 'playing' %}1.74s{% else %}4.04s{% endif %}"
+                 begin="-0.56s" repeatCount="indefinite"/>
+        {% endif %}
+      </rect>
+      <rect x="68.0" y="154" width="4.4" height="27" rx="2.2">
+        {% if state in ('playing', 'recent') %}
+        <animate attributeName="height" values="27;11;32;16;27"
+                 dur="{% if state == 'playing' %}1.93s{% else %}4.35s{% endif %}"
+                 begin="-0.70s" repeatCount="indefinite"/>
+        <animate attributeName="y" values="154;170;149;165;154"
+                 dur="{% if state == 'playing' %}1.93s{% else %}4.35s{% endif %}"
+                 begin="-0.70s" repeatCount="indefinite"/>
+        {% endif %}
+      </rect>
+      <rect x="80.4" y="148" width="4.4" height="33" rx="2.2">
+        {% if state in ('playing', 'recent') %}
+        <animate attributeName="height" values="33;14;40;20;33"
+                 dur="{% if state == 'playing' %}2.12s{% else %}4.66s{% endif %}"
+                 begin="-0.84s" repeatCount="indefinite"/>
+        <animate attributeName="y" values="148;167;141;161;148"
+                 dur="{% if state == 'playing' %}2.12s{% else %}4.66s{% endif %}"
+                 begin="-0.84s" repeatCount="indefinite"/>
+        {% endif %}
+      </rect>
+      <rect x="92.8" y="146" width="4.4" height="35" rx="2.2">
+        {% if state in ('playing', 'recent') %}
+        <animate attributeName="height" values="35;15;42;21;35"
+                 dur="{% if state == 'playing' %}0.98s{% else %}2.80s{% endif %}"
+                 begin="-0.98s" repeatCount="indefinite"/>
+        <animate attributeName="y" values="146;166;139;160;146"
+                 dur="{% if state == 'playing' %}0.98s{% else %}2.80s{% endif %}"
+                 begin="-0.98s" repeatCount="indefinite"/>
+        {% endif %}
+      </rect>
+      <rect x="105.2" y="148" width="4.4" height="33" rx="2.2">
+        {% if state in ('playing', 'recent') %}
+        <animate attributeName="height" values="33;14;40;20;33"
+                 dur="{% if state == 'playing' %}1.17s{% else %}3.11s{% endif %}"
+                 begin="-1.12s" repeatCount="indefinite"/>
+        <animate attributeName="y" values="148;167;141;161;148"
+                 dur="{% if state == 'playing' %}1.17s{% else %}3.11s{% endif %}"
+                 begin="-1.12s" repeatCount="indefinite"/>
+        {% endif %}
+      </rect>
+      <rect x="117.6" y="154" width="4.4" height="27" rx="2.2">
+        {% if state in ('playing', 'recent') %}
+        <animate attributeName="height" values="27;11;32;16;27"
+                 dur="{% if state == 'playing' %}1.36s{% else %}3.42s{% endif %}"
+                 begin="0.00s" repeatCount="indefinite"/>
+        <animate attributeName="y" values="154;170;149;165;154"
+                 dur="{% if state == 'playing' %}1.36s{% else %}3.42s{% endif %}"
+                 begin="0.00s" repeatCount="indefinite"/>
+        {% endif %}
+      </rect>
+      <rect x="130.0" y="164" width="4.4" height="17" rx="2.2">
+        {% if state in ('playing', 'recent') %}
+        <animate attributeName="height" values="17;7;20;10;17"
+                 dur="{% if state == 'playing' %}1.55s{% else %}3.73s{% endif %}"
+                 begin="-0.14s" repeatCount="indefinite"/>
+        <animate attributeName="y" values="164;174;161;171;164"
+                 dur="{% if state == 'playing' %}1.55s{% else %}3.73s{% endif %}"
+                 begin="-0.14s" repeatCount="indefinite"/>
+        {% endif %}
+      </rect>
+      <rect x="142.4" y="162" width="4.4" height="19" rx="2.2">
+        {% if state in ('playing', 'recent') %}
+        <animate attributeName="height" values="19;8;23;11;19"
+                 dur="{% if state == 'playing' %}1.74s{% else %}4.04s{% endif %}"
+                 begin="-0.28s" repeatCount="indefinite"/>
+        <animate attributeName="y" values="162;173;158;170;162"
+                 dur="{% if state == 'playing' %}1.74s{% else %}4.04s{% endif %}"
+                 begin="-0.28s" repeatCount="indefinite"/>
+        {% endif %}
+      </rect>
+      <rect x="154.8" y="156" width="4.4" height="25" rx="2.2">
+        {% if state in ('playing', 'recent') %}
+        <animate attributeName="height" values="25;11;30;15;25"
+                 dur="{% if state == 'playing' %}1.93s{% else %}4.35s{% endif %}"
+                 begin="-0.42s" repeatCount="indefinite"/>
+        <animate attributeName="y" values="156;170;151;166;156"
+                 dur="{% if state == 'playing' %}1.93s{% else %}4.35s{% endif %}"
+                 begin="-0.42s" repeatCount="indefinite"/>
+        {% endif %}
+      </rect>
+      <rect x="167.2" y="153" width="4.4" height="28" rx="2.2">
+        {% if state in ('playing', 'recent') %}
+        <animate attributeName="height" values="28;12;34;17;28"
+                 dur="{% if state == 'playing' %}2.12s{% else %}4.66s{% endif %}"
+                 begin="-0.56s" repeatCount="indefinite"/>
+        <animate attributeName="y" values="153;169;147;164;153"
+                 dur="{% if state == 'playing' %}2.12s{% else %}4.66s{% endif %}"
+                 begin="-0.56s" repeatCount="indefinite"/>
+        {% endif %}
+      </rect>
+      <rect x="179.6" y="153" width="4.4" height="28" rx="2.2">
+        {% if state in ('playing', 'recent') %}
+        <animate attributeName="height" values="28;12;34;17;28"
+                 dur="{% if state == 'playing' %}0.98s{% else %}2.80s{% endif %}"
+                 begin="-0.70s" repeatCount="indefinite"/>
+        <animate attributeName="y" values="153;169;147;164;153"
+                 dur="{% if state == 'playing' %}0.98s{% else %}2.80s{% endif %}"
+                 begin="-0.70s" repeatCount="indefinite"/>
+        {% endif %}
+      </rect>
+      <rect x="192.0" y="154" width="4.4" height="27" rx="2.2">
+        {% if state in ('playing', 'recent') %}
+        <animate attributeName="height" values="27;11;32;16;27"
+                 dur="{% if state == 'playing' %}1.17s{% else %}3.11s{% endif %}"
+                 begin="-0.84s" repeatCount="indefinite"/>
+        <animate attributeName="y" values="154;170;149;165;154"
+                 dur="{% if state == 'playing' %}1.17s{% else %}3.11s{% endif %}"
+                 begin="-0.84s" repeatCount="indefinite"/>
+        {% endif %}
+      </rect>
+      <rect x="204.4" y="147" width="4.4" height="34" rx="2.2">
+        {% if state in ('playing', 'recent') %}
+        <animate attributeName="height" values="34;14;41;20;34"
+                 dur="{% if state == 'playing' %}1.36s{% else %}3.42s{% endif %}"
+                 begin="-0.98s" repeatCount="indefinite"/>
+        <animate attributeName="y" values="147;167;140;161;147"
+                 dur="{% if state == 'playing' %}1.36s{% else %}3.42s{% endif %}"
+                 begin="-0.98s" repeatCount="indefinite"/>
+        {% endif %}
+      </rect>
+      <rect x="216.8" y="144" width="4.4" height="37" rx="2.2">
+        {% if state in ('playing', 'recent') %}
+        <animate attributeName="height" values="37;16;44;22;37"
+                 dur="{% if state == 'playing' %}1.55s{% else %}3.73s{% endif %}"
+                 begin="-1.12s" repeatCount="indefinite"/>
+        <animate attributeName="y" values="144;165;137;159;144"
+                 dur="{% if state == 'playing' %}1.55s{% else %}3.73s{% endif %}"
+                 begin="-1.12s" repeatCount="indefinite"/>
+        {% endif %}
+      </rect>
+      <rect x="229.2" y="145" width="4.4" height="36" rx="2.2">
+        {% if state in ('playing', 'recent') %}
+        <animate attributeName="height" values="36;15;43;22;36"
+                 dur="{% if state == 'playing' %}1.74s{% else %}4.04s{% endif %}"
+                 begin="0.00s" repeatCount="indefinite"/>
+        <animate attributeName="y" values="145;166;138;159;145"
+                 dur="{% if state == 'playing' %}1.74s{% else %}4.04s{% endif %}"
+                 begin="0.00s" repeatCount="indefinite"/>
+        {% endif %}
+      </rect>
+      <rect x="241.6" y="146" width="4.4" height="35" rx="2.2">
+        {% if state in ('playing', 'recent') %}
+        <animate attributeName="height" values="35;15;42;21;35"
+                 dur="{% if state == 'playing' %}1.93s{% else %}4.35s{% endif %}"
+                 begin="-0.14s" repeatCount="indefinite"/>
+        <animate attributeName="y" values="146;166;139;160;146"
+                 dur="{% if state == 'playing' %}1.93s{% else %}4.35s{% endif %}"
+                 begin="-0.14s" repeatCount="indefinite"/>
+        {% endif %}
+      </rect>
+      <rect x="254.0" y="151" width="4.4" height="30" rx="2.2">
+        {% if state in ('playing', 'recent') %}
+        <animate attributeName="height" values="30;13;36;18;30"
+                 dur="{% if state == 'playing' %}2.12s{% else %}4.66s{% endif %}"
+                 begin="-0.28s" repeatCount="indefinite"/>
+        <animate attributeName="y" values="151;168;145;163;151"
+                 dur="{% if state == 'playing' %}2.12s{% else %}4.66s{% endif %}"
+                 begin="-0.28s" repeatCount="indefinite"/>
+        {% endif %}
+      </rect>
+      <rect x="266.4" y="149" width="4.4" height="32" rx="2.2">
+        {% if state in ('playing', 'recent') %}
+        <animate attributeName="height" values="32;13;38;19;32"
+                 dur="{% if state == 'playing' %}0.98s{% else %}2.80s{% endif %}"
+                 begin="-0.42s" repeatCount="indefinite"/>
+        <animate attributeName="y" values="149;168;143;162;149"
+                 dur="{% if state == 'playing' %}0.98s{% else %}2.80s{% endif %}"
+                 begin="-0.42s" repeatCount="indefinite"/>
+        {% endif %}
+      </rect>
+      <rect x="278.8" y="151" width="4.4" height="30" rx="2.2">
+        {% if state in ('playing', 'recent') %}
+        <animate attributeName="height" values="30;13;36;18;30"
+                 dur="{% if state == 'playing' %}1.17s{% else %}3.11s{% endif %}"
+                 begin="-0.56s" repeatCount="indefinite"/>
+        <animate attributeName="y" values="151;168;145;163;151"
+                 dur="{% if state == 'playing' %}1.17s{% else %}3.11s{% endif %}"
+                 begin="-0.56s" repeatCount="indefinite"/>
+        {% endif %}
+      </rect>
+      <rect x="291.2" y="157" width="4.4" height="24" rx="2.2">
+        {% if state in ('playing', 'recent') %}
+        <animate attributeName="height" values="24;10;29;14;24"
+                 dur="{% if state == 'playing' %}1.36s{% else %}3.42s{% endif %}"
+                 begin="-0.70s" repeatCount="indefinite"/>
+        <animate attributeName="y" values="157;171;152;167;157"
+                 dur="{% if state == 'playing' %}1.36s{% else %}3.42s{% endif %}"
+                 begin="-0.70s" repeatCount="indefinite"/>
+        {% endif %}
+      </rect>
+      <rect x="303.6" y="157" width="4.4" height="24" rx="2.2">
+        {% if state in ('playing', 'recent') %}
+        <animate attributeName="height" values="24;10;29;14;24"
+                 dur="{% if state == 'playing' %}1.55s{% else %}3.73s{% endif %}"
+                 begin="-0.84s" repeatCount="indefinite"/>
+        <animate attributeName="y" values="157;171;152;167;157"
+                 dur="{% if state == 'playing' %}1.55s{% else %}3.73s{% endif %}"
+                 begin="-0.84s" repeatCount="indefinite"/>
+        {% endif %}
+      </rect>
+      <rect x="316.0" y="163" width="4.4" height="18" rx="2.2">
+        {% if state in ('playing', 'recent') %}
+        <animate attributeName="height" values="18;8;22;11;18"
+                 dur="{% if state == 'playing' %}1.74s{% else %}4.04s{% endif %}"
+                 begin="-0.98s" repeatCount="indefinite"/>
+        <animate attributeName="y" values="163;173;159;170;163"
+                 dur="{% if state == 'playing' %}1.74s{% else %}4.04s{% endif %}"
+                 begin="-0.98s" repeatCount="indefinite"/>
+        {% endif %}
+      </rect>
+      <rect x="328.4" y="156" width="4.4" height="25" rx="2.2">
+        {% if state in ('playing', 'recent') %}
+        <animate attributeName="height" values="25;11;30;15;25"
+                 dur="{% if state == 'playing' %}1.93s{% else %}4.35s{% endif %}"
+                 begin="-1.12s" repeatCount="indefinite"/>
+        <animate attributeName="y" values="156;170;151;166;156"
+                 dur="{% if state == 'playing' %}1.93s{% else %}4.35s{% endif %}"
+                 begin="-1.12s" repeatCount="indefinite"/>
+        {% endif %}
+      </rect>
+      <rect x="340.8" y="153" width="4.4" height="28" rx="2.2">
+        {% if state in ('playing', 'recent') %}
+        <animate attributeName="height" values="28;12;34;17;28"
+                 dur="{% if state == 'playing' %}2.12s{% else %}4.66s{% endif %}"
+                 begin="0.00s" repeatCount="indefinite"/>
+        <animate attributeName="y" values="153;169;147;164;153"
+                 dur="{% if state == 'playing' %}2.12s{% else %}4.66s{% endif %}"
+                 begin="0.00s" repeatCount="indefinite"/>
+        {% endif %}
+      </rect>
+      <rect x="353.2" y="153" width="4.4" height="28" rx="2.2">
+        {% if state in ('playing', 'recent') %}
+        <animate attributeName="height" values="28;12;34;17;28"
+                 dur="{% if state == 'playing' %}0.98s{% else %}2.80s{% endif %}"
+                 begin="-0.14s" repeatCount="indefinite"/>
+        <animate attributeName="y" values="153;169;147;164;153"
+                 dur="{% if state == 'playing' %}0.98s{% else %}2.80s{% endif %}"
+                 begin="-0.14s" repeatCount="indefinite"/>
+        {% endif %}
+      </rect>
+      <rect x="365.6" y="145" width="4.4" height="36" rx="2.2">
+        {% if state in ('playing', 'recent') %}
+        <animate attributeName="height" values="36;15;43;22;36"
+                 dur="{% if state == 'playing' %}1.17s{% else %}3.11s{% endif %}"
+                 begin="-0.28s" repeatCount="indefinite"/>
+        <animate attributeName="y" values="145;166;138;159;145"
+                 dur="{% if state == 'playing' %}1.17s{% else %}3.11s{% endif %}"
+                 begin="-0.28s" repeatCount="indefinite"/>
+        {% endif %}
+      </rect>
+      <rect x="378.0" y="148" width="4.4" height="33" rx="2.2">
+        {% if state in ('playing', 'recent') %}
+        <animate attributeName="height" values="33;14;40;20;33"
+                 dur="{% if state == 'playing' %}1.36s{% else %}3.42s{% endif %}"
+                 begin="-0.42s" repeatCount="indefinite"/>
+        <animate attributeName="y" values="148;167;141;161;148"
+                 dur="{% if state == 'playing' %}1.36s{% else %}3.42s{% endif %}"
+                 begin="-0.42s" repeatCount="indefinite"/>
+        {% endif %}
+      </rect>
+      <rect x="390.4" y="146" width="4.4" height="35" rx="2.2">
+        {% if state in ('playing', 'recent') %}
+        <animate attributeName="height" values="35;15;42;21;35"
+                 dur="{% if state == 'playing' %}1.55s{% else %}3.73s{% endif %}"
+                 begin="-0.56s" repeatCount="indefinite"/>
+        <animate attributeName="y" values="146;166;139;160;146"
+                 dur="{% if state == 'playing' %}1.55s{% else %}3.73s{% endif %}"
+                 begin="-0.56s" repeatCount="indefinite"/>
+        {% endif %}
+      </rect>
+      <rect x="402.8" y="147" width="4.4" height="34" rx="2.2">
+        {% if state in ('playing', 'recent') %}
+        <animate attributeName="height" values="34;14;41;20;34"
+                 dur="{% if state == 'playing' %}1.74s{% else %}4.04s{% endif %}"
+                 begin="-0.70s" repeatCount="indefinite"/>
+        <animate attributeName="y" values="147;167;140;161;147"
+                 dur="{% if state == 'playing' %}1.74s{% else %}4.04s{% endif %}"
+                 begin="-0.70s" repeatCount="indefinite"/>
+        {% endif %}
+      </rect>
+      <rect x="415.2" y="149" width="4.4" height="32" rx="2.2">
+        {% if state in ('playing', 'recent') %}
+        <animate attributeName="height" values="32;13;38;19;32"
+                 dur="{% if state == 'playing' %}1.93s{% else %}4.35s{% endif %}"
+                 begin="-0.84s" repeatCount="indefinite"/>
+        <animate attributeName="y" values="149;168;143;162;149"
+                 dur="{% if state == 'playing' %}1.93s{% else %}4.35s{% endif %}"
+                 begin="-0.84s" repeatCount="indefinite"/>
+        {% endif %}
+      </rect>
+      <rect x="427.6" y="144" width="4.4" height="37" rx="2.2">
+        {% if state in ('playing', 'recent') %}
+        <animate attributeName="height" values="37;16;44;22;37"
+                 dur="{% if state == 'playing' %}2.12s{% else %}4.66s{% endif %}"
+                 begin="-0.98s" repeatCount="indefinite"/>
+        <animate attributeName="y" values="144;165;137;159;144"
+                 dur="{% if state == 'playing' %}2.12s{% else %}4.66s{% endif %}"
+                 begin="-0.98s" repeatCount="indefinite"/>
+        {% endif %}
+      </rect>
+      <rect x="440.0" y="152" width="4.4" height="29" rx="2.2">
+        {% if state in ('playing', 'recent') %}
+        <animate attributeName="height" values="29;12;35;17;29"
+                 dur="{% if state == 'playing' %}0.98s{% else %}2.80s{% endif %}"
+                 begin="-1.12s" repeatCount="indefinite"/>
+        <animate attributeName="y" values="152;169;146;164;152"
+                 dur="{% if state == 'playing' %}0.98s{% else %}2.80s{% endif %}"
+                 begin="-1.12s" repeatCount="indefinite"/>
+        {% endif %}
+      </rect>
+      <rect x="452.4" y="154" width="4.4" height="27" rx="2.2">
+        {% if state in ('playing', 'recent') %}
+        <animate attributeName="height" values="27;11;32;16;27"
+                 dur="{% if state == 'playing' %}1.17s{% else %}3.11s{% endif %}"
+                 begin="0.00s" repeatCount="indefinite"/>
+        <animate attributeName="y" values="154;170;149;165;154"
+                 dur="{% if state == 'playing' %}1.17s{% else %}3.11s{% endif %}"
+                 begin="0.00s" repeatCount="indefinite"/>
+        {% endif %}
+      </rect>
+      <rect x="464.8" y="159" width="4.4" height="22" rx="2.2">
+        {% if state in ('playing', 'recent') %}
+        <animate attributeName="height" values="22;9;26;13;22"
+                 dur="{% if state == 'playing' %}1.36s{% else %}3.42s{% endif %}"
+                 begin="-0.14s" repeatCount="indefinite"/>
+        <animate attributeName="y" values="159;172;155;168;159"
+                 dur="{% if state == 'playing' %}1.36s{% else %}3.42s{% endif %}"
+                 begin="-0.14s" repeatCount="indefinite"/>
+        {% endif %}
+      </rect>
+      <rect x="477.2" y="161" width="4.4" height="20" rx="2.2">
+        {% if state in ('playing', 'recent') %}
+        <animate attributeName="height" values="20;8;24;12;20"
+                 dur="{% if state == 'playing' %}1.55s{% else %}3.73s{% endif %}"
+                 begin="-0.28s" repeatCount="indefinite"/>
+        <animate attributeName="y" values="161;173;157;169;161"
+                 dur="{% if state == 'playing' %}1.55s{% else %}3.73s{% endif %}"
+                 begin="-0.28s" repeatCount="indefinite"/>
+        {% endif %}
+      </rect>
+      <rect x="489.6" y="154" width="4.4" height="27" rx="2.2">
+        {% if state in ('playing', 'recent') %}
+        <animate attributeName="height" values="27;11;32;16;27"
+                 dur="{% if state == 'playing' %}1.74s{% else %}4.04s{% endif %}"
+                 begin="-0.42s" repeatCount="indefinite"/>
+        <animate attributeName="y" values="154;170;149;165;154"
+                 dur="{% if state == 'playing' %}1.74s{% else %}4.04s{% endif %}"
+                 begin="-0.42s" repeatCount="indefinite"/>
+        {% endif %}
+      </rect>
+      <rect x="502.0" y="157" width="4.4" height="24" rx="2.2">
+        {% if state in ('playing', 'recent') %}
+        <animate attributeName="height" values="24;10;29;14;24"
+                 dur="{% if state == 'playing' %}1.93s{% else %}4.35s{% endif %}"
+                 begin="-0.56s" repeatCount="indefinite"/>
+        <animate attributeName="y" values="157;171;152;167;157"
+                 dur="{% if state == 'playing' %}1.93s{% else %}4.35s{% endif %}"
+                 begin="-0.56s" repeatCount="indefinite"/>
+        {% endif %}
+      </rect>
+      <rect x="514.4" y="154" width="4.4" height="27" rx="2.2">
+        {% if state in ('playing', 'recent') %}
+        <animate attributeName="height" values="27;11;32;16;27"
+                 dur="{% if state == 'playing' %}2.12s{% else %}4.66s{% endif %}"
+                 begin="-0.70s" repeatCount="indefinite"/>
+        <animate attributeName="y" values="154;170;149;165;154"
+                 dur="{% if state == 'playing' %}2.12s{% else %}4.66s{% endif %}"
+                 begin="-0.70s" repeatCount="indefinite"/>
+        {% endif %}
+      </rect>
+      <rect x="526.8" y="154" width="4.4" height="27" rx="2.2">
+        {% if state in ('playing', 'recent') %}
+        <animate attributeName="height" values="27;11;32;16;27"
+                 dur="{% if state == 'playing' %}0.98s{% else %}2.80s{% endif %}"
+                 begin="-0.84s" repeatCount="indefinite"/>
+        <animate attributeName="y" values="154;170;149;165;154"
+                 dur="{% if state == 'playing' %}0.98s{% else %}2.80s{% endif %}"
+                 begin="-0.84s" repeatCount="indefinite"/>
+        {% endif %}
+      </rect>
+      <rect x="539.2" y="147" width="4.4" height="34" rx="2.2">
+        {% if state in ('playing', 'recent') %}
+        <animate attributeName="height" values="34;14;41;20;34"
+                 dur="{% if state == 'playing' %}1.17s{% else %}3.11s{% endif %}"
+                 begin="-0.98s" repeatCount="indefinite"/>
+        <animate attributeName="y" values="147;167;140;161;147"
+                 dur="{% if state == 'playing' %}1.17s{% else %}3.11s{% endif %}"
+                 begin="-0.98s" repeatCount="indefinite"/>
+        {% endif %}
+      </rect>
+      <rect x="551.6" y="140" width="4.4" height="41" rx="2.2">
+        {% if state in ('playing', 'recent') %}
+        <animate attributeName="height" values="41;17;49;25;41"
+                 dur="{% if state == 'playing' %}1.36s{% else %}3.42s{% endif %}"
+                 begin="-1.12s" repeatCount="indefinite"/>
+        <animate attributeName="y" values="140;164;132;156;140"
+                 dur="{% if state == 'playing' %}1.36s{% else %}3.42s{% endif %}"
+                 begin="-1.12s" repeatCount="indefinite"/>
+        {% endif %}
+      </rect>
+      <rect x="564.0" y="147" width="4.4" height="34" rx="2.2">
+        {% if state in ('playing', 'recent') %}
+        <animate attributeName="height" values="34;14;41;20;34"
+                 dur="{% if state == 'playing' %}1.55s{% else %}3.73s{% endif %}"
+                 begin="0.00s" repeatCount="indefinite"/>
+        <animate attributeName="y" values="147;167;140;161;147"
+                 dur="{% if state == 'playing' %}1.55s{% else %}3.73s{% endif %}"
+                 begin="0.00s" repeatCount="indefinite"/>
+        {% endif %}
+      </rect>
+      <rect x="576.4" y="149" width="4.4" height="32" rx="2.2">
+        {% if state in ('playing', 'recent') %}
+        <animate attributeName="height" values="32;13;38;19;32"
+                 dur="{% if state == 'playing' %}1.74s{% else %}4.04s{% endif %}"
+                 begin="-0.14s" repeatCount="indefinite"/>
+        <animate attributeName="y" values="149;168;143;162;149"
+                 dur="{% if state == 'playing' %}1.74s{% else %}4.04s{% endif %}"
+                 begin="-0.14s" repeatCount="indefinite"/>
+        {% endif %}
+      </rect>
+      <rect x="588.8" y="152" width="4.4" height="29" rx="2.2">
+        {% if state in ('playing', 'recent') %}
+        <animate attributeName="height" values="29;12;35;17;29"
+                 dur="{% if state == 'playing' %}1.93s{% else %}4.35s{% endif %}"
+                 begin="-0.28s" repeatCount="indefinite"/>
+        <animate attributeName="y" values="152;169;146;164;152"
+                 dur="{% if state == 'playing' %}1.93s{% else %}4.35s{% endif %}"
+                 begin="-0.28s" repeatCount="indefinite"/>
+        {% endif %}
+      </rect>
+    </g>
 
-  <circle cx="151" cy="33" r="4" fill="{% if state == 'playing' %}#1ed760{% else %}#8b949e{% endif %}"/>
-  <text x="162" y="37" fill="{% if state == 'playing' %}#1ed760{% else %}#adb6c0{% endif %}" font-family="Segoe UI, Arial, sans-serif" font-size="12" font-weight="700" letter-spacing="1.2">{{ label|e }}</text>
+    <!-- Text contrast layer ensures effects never compromise legibility. -->
+    <rect x="185" y="26" width="408" height="135" rx="15" fill="url(#text-shade)" opacity=".79"/>
 
-  <text x="145" y="77" fill="#f0f6fc" font-family="Segoe UI, Arial, sans-serif" font-size="22" font-weight="700">{{ title|e }}</text>
-  <text x="145" y="104" fill="#b7c0cc" font-family="Segoe UI, Arial, sans-serif" font-size="16">{{ artist|e }}</text>
+    <!-- Small floating light particles. -->
+    <g fill="#78ffd2" opacity=".35">
+      <circle cx="570" cy="100" r="1.5"/>
+      <circle cx="520" cy="146" r="1"/>
+      <circle cx="392" cy="25" r="1.2"/>
+      <circle cx="269" cy="169" r="1.1"/>
+    </g>
+    <rect width="600" height="190" fill="url(#glass)"/>
 
-  <g transform="translate(465,23)" fill="#1ed760">
-    <circle cx="12" cy="12" r="12"/>
-    <path d="M5 8c5-2 11-1 15 1M6 12c5-1 10-.5 13 1M7 16c4-1 8-.2 11 1" fill="none" stroke="#0d1117" stroke-width="1.8" stroke-linecap="round"/>
+    <!-- Soft halo and crisp album cover. -->
+    <rect x="20" y="20" width="152" height="152" rx="19" fill="#{{ accent }}"
+          opacity=".35" filter="url(#cover-shadow)"/>
+    <rect x="22" y="21" width="148" height="148" rx="17" fill="url(#cover-fallback)"/>
+    {% if album_image %}
+    <image x="23" y="22" width="146" height="146" href="{{ album_image|e }}"
+           preserveAspectRatio="xMidYMid slice" clip-path="url(#cover-clip)"/>
+    {% else %}
+    <g opacity=".77" fill="#eafff5" transform="translate(72,74)">
+      <circle cx="23" cy="23" r="35" fill="#fff" fill-opacity=".10"/>
+      <path d="M25-11V38a13 13 0 1 1-8-12V0l28-7v-9z"/>
+    </g>
+    {% endif %}
+    <rect x="23" y="22" width="146" height="146" rx="16"
+          fill="none" stroke="#fff" stroke-opacity=".28" stroke-width="1.2"/>
+
+    <!-- Information only: title + artist. No NOW PLAYING pill or text. -->
+    <text x="204" y="91" font-family="Segoe UI, Arial, sans-serif"
+          font-size="29" font-weight="700" letter-spacing="-.6"
+          fill="#f7fffb">{{ title|e }}</text>
+    <text x="205" y="125" font-family="Segoe UI, Arial, sans-serif"
+          font-size="18" font-weight="400" fill="#b7c6c1">{{ artist|e }}</text>
+
+    <!-- Recognizable Spotify mark, intentionally small and unobtrusive. -->
+    <g transform="translate(549,17)">
+      <circle cx="15" cy="15" r="15" fill="#1ed760"/>
+      <path d="M6.6 11.0C12.6 8.6 19.1 9.3 24.1 12.1
+               M7.6 15.5C12.4 13.7 18.3 14.4 22.8 16.9
+               M8.8 19.8C12.8 18.4 17.6 19.0 21.3 21.0"
+            fill="none" stroke="#052418" stroke-width="1.9"
+            stroke-linecap="round"/>
+    </g>
+
+    <!-- Thin luminous glass edges. -->
+    <rect x="1.5" y="1.5" width="597" height="187" rx="20.5"
+          fill="none" stroke="#e8fff9" stroke-opacity=".11"/>
+    <path d="M30 2H570" stroke="#79ffd4" stroke-width="1.2" stroke-opacity=".28"/>
+    <path d="M29 188H569" stroke="#1ed760" stroke-width="1.6" stroke-opacity=".35"/>
   </g>
-
-  <!-- Native SVG/SMIL animation: purely decorative, not real audio levels. -->
-  <g transform="translate(146,122)" fill="{% if state == 'playing' %}#1ed760{% elif state == 'recent' %}#81ab94{% else %}#64748b{% endif %}">
-    <rect x="0" y="11" width="3" height="4" rx="1.5">
-      {% if state in ('playing', 'recent') %}
-      <animate attributeName="height" values="4;13;7;11;4" dur="{% if state == 'playing' %}0.85s{% else %}2.00s{% endif %}" begin="-0.16s" repeatCount="indefinite"/>
-      <animate attributeName="y" values="11;2;8;4;11" dur="{% if state == 'playing' %}0.85s{% else %}2.00s{% endif %}" begin="-0.16s" repeatCount="indefinite"/>
-      {% endif %}
-    </rect>
-    <rect x="7" y="5" width="3" height="10" rx="1.5">
-      {% if state in ('playing', 'recent') %}
-      <animate attributeName="height" values="10;5;15;8;10" dur="{% if state == 'playing' %}1.02s{% else %}2.24s{% endif %}" begin="-0.35s" repeatCount="indefinite"/>
-      <animate attributeName="y" values="5;10;0;7;5" dur="{% if state == 'playing' %}1.02s{% else %}2.24s{% endif %}" begin="-0.35s" repeatCount="indefinite"/>
-      {% endif %}
-    </rect>
-    <rect x="14" y="9" width="3" height="6" rx="1.5">
-      {% if state in ('playing', 'recent') %}
-      <animate attributeName="height" values="6;12;4;14;6" dur="{% if state == 'playing' %}1.19s{% else %}2.48s{% endif %}" begin="-0.54s" repeatCount="indefinite"/>
-      <animate attributeName="y" values="9;3;11;1;9" dur="{% if state == 'playing' %}1.19s{% else %}2.48s{% endif %}" begin="-0.54s" repeatCount="indefinite"/>
-      {% endif %}
-    </rect>
-    <rect x="21" y="2" width="3" height="13" rx="1.5">
-      {% if state in ('playing', 'recent') %}
-      <animate attributeName="height" values="13;7;10;3;13" dur="{% if state == 'playing' %}1.36s{% else %}2.72s{% endif %}" begin="-0.73s" repeatCount="indefinite"/>
-      <animate attributeName="y" values="2;8;5;12;2" dur="{% if state == 'playing' %}1.36s{% else %}2.72s{% endif %}" begin="-0.73s" repeatCount="indefinite"/>
-      {% endif %}
-    </rect>
-    <rect x="28" y="7" width="3" height="8" rx="1.5">
-      {% if state in ('playing', 'recent') %}
-      <animate attributeName="height" values="8;15;5;11;8" dur="{% if state == 'playing' %}1.53s{% else %}2.96s{% endif %}" begin="-0.92s" repeatCount="indefinite"/>
-      <animate attributeName="y" values="7;0;10;4;7" dur="{% if state == 'playing' %}1.53s{% else %}2.96s{% endif %}" begin="-0.92s" repeatCount="indefinite"/>
-      {% endif %}
-    </rect>
-    <rect x="35" y="10" width="3" height="5" rx="1.5">
-      {% if state in ('playing', 'recent') %}
-      <animate attributeName="height" values="5;10;14;7;5" dur="{% if state == 'playing' %}0.85s{% else %}2.00s{% endif %}" begin="-0.16s" repeatCount="indefinite"/>
-      <animate attributeName="y" values="10;5;1;8;10" dur="{% if state == 'playing' %}0.85s{% else %}2.00s{% endif %}" begin="-0.16s" repeatCount="indefinite"/>
-      {% endif %}
-    </rect>
-    <rect x="42" y="3" width="3" height="12" rx="1.5">
-      {% if state in ('playing', 'recent') %}
-      <animate attributeName="height" values="12;4;9;15;12" dur="{% if state == 'playing' %}1.02s{% else %}2.24s{% endif %}" begin="-0.35s" repeatCount="indefinite"/>
-      <animate attributeName="y" values="3;11;6;0;3" dur="{% if state == 'playing' %}1.02s{% else %}2.24s{% endif %}" begin="-0.35s" repeatCount="indefinite"/>
-      {% endif %}
-    </rect>
-    <rect x="49" y="8" width="3" height="7" rx="1.5">
-      {% if state in ('playing', 'recent') %}
-      <animate attributeName="height" values="7;14;6;10;7" dur="{% if state == 'playing' %}1.19s{% else %}2.48s{% endif %}" begin="-0.54s" repeatCount="indefinite"/>
-      <animate attributeName="y" values="8;1;9;5;8" dur="{% if state == 'playing' %}1.19s{% else %}2.48s{% endif %}" begin="-0.54s" repeatCount="indefinite"/>
-      {% endif %}
-    </rect>
-    <rect x="56" y="1" width="3" height="14" rx="1.5">
-      {% if state in ('playing', 'recent') %}
-      <animate attributeName="height" values="14;9;4;12;14" dur="{% if state == 'playing' %}1.36s{% else %}2.72s{% endif %}" begin="-0.73s" repeatCount="indefinite"/>
-      <animate attributeName="y" values="1;6;11;3;1" dur="{% if state == 'playing' %}1.36s{% else %}2.72s{% endif %}" begin="-0.73s" repeatCount="indefinite"/>
-      {% endif %}
-    </rect>
-    <rect x="63" y="10" width="3" height="5" rx="1.5">
-      {% if state in ('playing', 'recent') %}
-      <animate attributeName="height" values="5;11;15;8;5" dur="{% if state == 'playing' %}1.53s{% else %}2.96s{% endif %}" begin="-0.92s" repeatCount="indefinite"/>
-      <animate attributeName="y" values="10;4;0;7;10" dur="{% if state == 'playing' %}1.53s{% else %}2.96s{% endif %}" begin="-0.92s" repeatCount="indefinite"/>
-      {% endif %}
-    </rect>
-    <rect x="70" y="4" width="3" height="11" rx="1.5">
-      {% if state in ('playing', 'recent') %}
-      <animate attributeName="height" values="11;6;13;3;11" dur="{% if state == 'playing' %}0.85s{% else %}2.00s{% endif %}" begin="-0.16s" repeatCount="indefinite"/>
-      <animate attributeName="y" values="4;9;2;12;4" dur="{% if state == 'playing' %}0.85s{% else %}2.00s{% endif %}" begin="-0.16s" repeatCount="indefinite"/>
-      {% endif %}
-    </rect>
-    <rect x="77" y="8" width="3" height="7" rx="1.5">
-      {% if state in ('playing', 'recent') %}
-      <animate attributeName="height" values="7;14;10;5;7" dur="{% if state == 'playing' %}1.02s{% else %}2.24s{% endif %}" begin="-0.35s" repeatCount="indefinite"/>
-      <animate attributeName="y" values="8;1;5;10;8" dur="{% if state == 'playing' %}1.02s{% else %}2.24s{% endif %}" begin="-0.35s" repeatCount="indefinite"/>
-      {% endif %}
-    </rect>
-  </g>
-  <text x="247" y="136" fill="#8b949e" font-size="11" font-family="Segoe UI, Arial, sans-serif">Spotify API · Emanuel</text>
+  <rect x=".6" y=".6" width="598.8" height="188.8" rx="21.4"
+        fill="none" stroke="#{{ border_color }}" stroke-width="1.2"/>
 </svg>
