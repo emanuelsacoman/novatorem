@@ -3,6 +3,7 @@
 No Spotify credentials are ever embedded in the image or returned in errors.
 """
 from base64 import b64encode
+import colorsys
 from io import BytesIO
 import logging
 import os
@@ -25,6 +26,12 @@ RECENT_URL = "https://api.spotify.com/v1/me/player/recently-played?limit=1"
 DEFAULT_BG = "0d1117"
 DEFAULT_BORDER = "30363d"
 DEFAULT_ACCENT = "1ed760"
+DEFAULT_PALETTE = {
+    "accent": DEFAULT_ACCENT,
+    "accent_2": "50cfa4",
+    "accent_3": "188e88",
+    "accent_4": "91dfc2",
+}
 TOKEN = {"value": "", "expires_at": 0.0}
 IMAGE_HOSTS = {"i.scdn.co", "mosaic.scdn.co", "image-cdn-ak.spotifycdn.com"}
 
@@ -137,35 +144,60 @@ def select_playback(current, recent):
     return None, "NOT PLAYING", "idle"
 
 
+def palette_from_cover(data):
+    """Use the same ColorThief palette approach as main, once per cover.
+
+    Moderate brightness improves visibility on a dark SVG without changing
+    the hue: monochrome covers stay monochrome, colorful covers stay colorful.
+    """
+    try:
+        raw = ColorThief(BytesIO(data)).get_palette(color_count=5, quality=5)
+        swatches = []
+        for rgb in raw:
+            if len(rgb) < 3:
+                continue
+            h, saturation, value = colorsys.rgb_to_hsv(*(int(channel) / 255 for channel in rgb[:3]))
+            value = max(.55, min(.91, value))
+            if saturation >= .10:
+                saturation = min(.96, max(.22, saturation * 1.08))
+            else:
+                saturation = 0.0
+            corrected = colorsys.hsv_to_rgb(h, saturation, value)
+            color = "".join(f"{round(channel * 255):02x}" for channel in corrected)
+            if color not in swatches:
+                swatches.append(color)
+        if not swatches:
+            return DEFAULT_PALETTE.copy()
+        colors = [swatches[index % len(swatches)] for index in range(4)]
+        return dict(zip(DEFAULT_PALETTE, colors))
+    except (OSError, ValueError, TypeError, IndexError, ZeroDivisionError):
+        return DEFAULT_PALETTE.copy()
+
+
 def album_artwork(track):
-    """Download small Spotify-CDN images only; never follow redirects."""
+    """Fetch Spotify-CDN art once; derive the full effect palette from its pixels."""
     if not track:
-        return "", DEFAULT_ACCENT
+        return "", DEFAULT_PALETTE.copy()
     album = track.get("album") if isinstance(track.get("album"), dict) else {}
     images = album.get("images") if isinstance(album.get("images"), list) else []
     url = next((image.get("url") for image in images if isinstance(image, dict) and isinstance(image.get("url"), str)), "")
     parsed = urlparse(url)
     if parsed.scheme != "https" or parsed.hostname not in IMAGE_HOSTS:
-        return "", DEFAULT_ACCENT
+        return "", DEFAULT_PALETTE.copy()
     try:
         response = requests.get(url, timeout=5, allow_redirects=False)
         if response.status_code != 200:
-            return "", DEFAULT_ACCENT
+            return "", DEFAULT_PALETTE.copy()
         data = response.content
         if not data or len(data) > 750_000:
-            return "", DEFAULT_ACCENT
+            return "", DEFAULT_PALETTE.copy()
         content_type = response.headers.get("Content-Type", "").split(";")[0].lower()
         if content_type not in ("image/jpeg", "image/png", "image/webp"):
-            return "", DEFAULT_ACCENT
-        mime = content_type
-        try:
-            color = ColorThief(BytesIO(data)).get_color(quality=5)
-            accent = "%02x%02x%02x" % color[:3]
-        except (OSError, ValueError, TypeError, IndexError):
-            accent = DEFAULT_ACCENT
-        return f"data:{mime};base64,{b64encode(data).decode('ascii')}", accent
+            return "", DEFAULT_PALETTE.copy()
+        palette = palette_from_cover(data)
+        return f"data:{content_type};base64,{b64encode(data).decode('ascii')}", palette
     except requests.RequestException:
-        return "", DEFAULT_ACCENT
+        return "", DEFAULT_PALETTE.copy()
 
 
 def build_view(track, label, state):
@@ -174,7 +206,7 @@ def build_view(track, label, state):
             "title": "Nothing playing right now",
             "artist": "Check back for new music",
             "album_image": "",
-            "accent": DEFAULT_ACCENT,
+            **DEFAULT_PALETTE,
             "track_url": "",
             "state": state,
             "label": label,
@@ -184,12 +216,12 @@ def build_view(track, label, state):
         (person.get("name") for person in track.get("artists", []) if isinstance(person, dict) and isinstance(person.get("name"), str)),
         "Unknown artist",
     )
-    image, accent = album_artwork(track)
+    image, palette = album_artwork(track)
     return {
         "title": shorten(track["name"], 23),
         "artist": shorten(artist, 34),
         "album_image": image,
-        "accent": accent,
+        **palette,
         "track_url": spotify_url((track.get("external_urls") or {}).get("spotify"), "track"),
         "state": state,
         "label": label,
