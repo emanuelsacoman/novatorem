@@ -207,7 +207,12 @@ def catch_all(path):
         # An active song doesn't need a second Spotify request.
         recent = None
         if not (isinstance(current, dict) and current.get("is_playing") is True and valid_track(current.get("item"))):
-            recent = spotify_get(RECENT_URL)
+            try:
+                recent = spotify_get(RECENT_URL)
+            except SpotifyUnavailable:
+                # A paused current track can still be shown if history is unavailable.
+                if not (isinstance(current, dict) and valid_track(current.get("item"))):
+                    raise
         track, label, state = select_playback(current, recent)
         view = build_view(track, label, state)
     except (SpotifyUnavailable, KeyError, TypeError, ValueError) as exc:
