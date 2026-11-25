@@ -5,6 +5,8 @@
   <defs>
     <clipPath id="card-clip"><rect x="1" y="1" width="598" height="188" rx="21"/></clipPath>
     <clipPath id="cover-clip"><rect x="23" y="22" width="146" height="146" rx="16"/></clipPath>
+    <!-- Hard safety boundary for unusual client SVG font metrics. -->
+    <clipPath id="metadata-clip"><rect x="202" y="46" width="368" height="117"/></clipPath>
     <linearGradient id="base-gradient" x1="0" y1="0" x2="1" y2="1">
       <stop offset="0%" stop-color="#{{ accent_3 }}" stop-opacity=".28"/>
       <stop offset="55%" stop-color="#{{ background_color }}"/>
@@ -961,12 +963,25 @@
     <rect x="23" y="22" width="146" height="146" rx="16"
           fill="none" stroke="#fff" stroke-opacity=".28" stroke-width="1.2"/>
 
-    <!-- Information only: title + artist. No NOW PLAYING pill or text. -->
-    <text x="204" y="91" font-family="Segoe UI, Arial, sans-serif"
-          font-size="29" font-weight="700" letter-spacing="-.6"
-          fill="#{{ title_color }}">{{ title|e }}</text>
-    <text x="205" y="125" font-family="Segoe UI, Arial, sans-serif"
-          font-size="18" font-weight="400" fill="#{{ artist_color }}">{{ artist|e }}</text>
+    <!-- Native SVG adaptive text: one line for compact titles, two for longer
+         titles, progressively smaller type and a final ellipsis if necessary. -->
+    <g id="metadata-text" clip-path="url(#metadata-clip)"
+       font-family="Segoe UI, Arial, sans-serif">
+      {% if title_lines|length == 1 %}
+      <text data-role="track-title" x="204" y="92" font-size="{{ title_font_size }}"
+            font-weight="700" letter-spacing="-.6"
+            fill="#{{ title_color }}">{{ title_lines[0]|e }}</text>
+      {% else %}
+      <text data-role="track-title" x="204" y="78" font-size="{{ title_font_size }}"
+            font-weight="700" letter-spacing="-.4"
+            fill="#{{ title_color }}">{{ title_lines[0]|e }}</text>
+      <text data-role="track-title" x="204" y="109" font-size="{{ title_font_size }}"
+            font-weight="700" letter-spacing="-.4"
+            fill="#{{ title_color }}">{{ title_lines[1]|e }}</text>
+      {% endif %}
+      <text data-role="track-artist" x="205" y="{{ artist_y }}" font-size="{{ artist_font_size }}"
+            font-weight="400" fill="#{{ artist_color }}">{{ artist_display|e }}</text>
+    </g>
 
     <!-- Thin luminous glass edges. -->
     <rect x="1.5" y="1.5" width="597" height="187" rx="20.5"
