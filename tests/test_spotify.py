@@ -124,16 +124,59 @@ class SpotifyWidgetTests(unittest.TestCase):
                 outputs.append((title_color, artist_color))
         self.assertNotEqual(outputs[0], outputs[1])
 
-    def test_equalizer_gradient_has_album_colors_and_vertical_fade(self):
-        with patch.object(spotify, "spotify_get", return_value={"is_playing": True, "item": track()}):
+    def test_equalizer_has_one_shared_horizontal_moving_palette(self):
+        import xml.etree.ElementTree as ET
+
+        with patch.object(spotify, "spotify_get", return_value={
+            "is_playing": True, "item": track()
+        }):
             with patch.object(spotify, "album_artwork", return_value=("", {
-                "accent": "8e325a", "accent_2": "e56b82", "accent_3": "863b80", "accent_4": "fdc77d"
+                "accent": "8e325a", "accent_2": "e56b82",
+                "accent_3": "863b80", "accent_4": "fdc77d"
             })):
                 svg = spotify.app.test_client().get("/").get_data(as_text=True)
-        self.assertIn('id="bars-gradient" x1="0%" y1="0%" x2="0%" y2="100%"', svg)
-        self.assertIn('stop-color="#fdc77d" stop-opacity=".94"', svg)
-        self.assertIn('stop-color="#e56b82" stop-opacity=".84"', svg)
-        self.assertIn('stop-color="#8e325a" stop-opacity=".10"', svg)
+
+        ns = "{http://www.w3.org/2000/svg}"
+        root = ET.fromstring(svg)
+        gradient = root.find(f".//{ns}linearGradient[@id='bars-gradient']")
+        self.assertIsNotNone(gradient)
+        self.assertEqual(gradient.get("gradientUnits"), "userSpaceOnUse")
+        self.assertEqual(gradient.get("spreadMethod"), "repeat")
+        self.assertEqual((gradient.get("x1"), gradient.get("y1")), ("0", "0"))
+        self.assertEqual((gradient.get("x2"), gradient.get("y2")), ("600", "0"))
+        stops = gradient.findall(f"{ns}stop")
+        self.assertEqual([item.get("stop-color") for item in stops], [
+            "#fdc77d", "#e56b82", "#863b80", "#8e325a", "#fdc77d"
+        ])
+        self.assertEqual(stops[0].get("stop-opacity"), stops[-1].get("stop-opacity"))
+        moving = gradient.find(f"{ns}animateTransform")
+        self.assertIsNotNone(moving)
+        self.assertEqual(moving.get("attributeName"), "gradientTransform")
+        self.assertEqual(moving.get("type"), "translate")
+        self.assertEqual(moving.get("from"), "0 0")
+        self.assertEqual(moving.get("to"), "600 0")
+        self.assertEqual(moving.get("repeatCount"), "indefinite")
+
+        bars = root.find(f".//{ns}g[@id='equalizer-wave']")
+        self.assertEqual(bars.get("fill"), "url(#bars-gradient)")
+        self.assertEqual(len(bars.findall(f"{ns}rect")), 50)
+        self.assertTrue(all(bar.get("fill") is None for bar in bars.findall(f"{ns}rect")))
+
+    def test_shared_gradient_still_moves_when_bars_are_static(self):
+        import xml.etree.ElementTree as ET
+
+        with patch.object(spotify, "spotify_get", side_effect=[
+            None, {"items": []}
+        ]):
+            svg = spotify.app.test_client().get("/").get_data(as_text=True)
+        ns = "{http://www.w3.org/2000/svg}"
+        root = ET.fromstring(svg)
+        self.assertIsNotNone(root.find(
+            f".//{ns}linearGradient[@id='bars-gradient']/{ns}animateTransform"
+        ))
+        equalizer = root.find(f".//{ns}g[@id='equalizer-wave']")
+        self.assertEqual(len(equalizer.findall(f"{ns}rect")), 50)
+        self.assertEqual(len(equalizer.findall(f".//{ns}animate")), 0)
 
     def test_monochrome_cover_stays_monochrome(self):
         with patch.object(spotify, "ColorThief") as color_thief:
