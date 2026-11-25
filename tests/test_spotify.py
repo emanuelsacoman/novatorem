@@ -157,7 +157,7 @@ class SpotifyWidgetTests(unittest.TestCase):
         self.assertIn("NOW PLAYING", body)  # Accessible SVG description only
         self.assertNotIn(">NOW PLAYING</text>", body)
         self.assertIn("url(#bars-gradient)", body)
-        self.assertIn("url(#ambient-green)", body)
+        self.assertIn("url(#ambient-secondary)", body)
         self.assertIn("&lt;script&gt;", body)
         self.assertNotIn("<script>", body)
         self.assertIn('fill="#0d1117"', body)
