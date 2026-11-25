@@ -4,14 +4,14 @@ A Spotify music card for [Emanuel's GitHub profile](https://github.com/emanuelsa
 
 ## Visual design
 
-A clean 600 × 190 px, cinematic card: cover art, track title, artist and a small Spotify mark. There is **no visible playback status label** or footer. Colors are sampled from each album cover with ColorThief (as in the original `main` implementation), then used for **all ambient gradients, animated bars, light trails and glowing frame details**. The Spotify logo is the only permanently green element. Monochrome covers produce monochrome lighting. A dark contrast veil keeps the track title and artist readable.
+A clean 600 × 190 px cinematic card containing only cover art, track title and artist — **no Spotify logo, playback label or footer**. Colors are sampled from each album cover with ColorThief (as in the original `main` implementation), then used for **all ambient gradients, animated bars, light trails and glowing frame details**. There is no fixed green branding in the card: all colored effects follow the current album. Monochrome covers produce monochrome lighting. A dark contrast veil keeps the track title and artist readable.
 
 Playback status is still preserved in the SVG accessibility description:
 - **playing**: energetic equalizer animation;
 - **recent**: gentler animation on the latest recently played track;
 - **paused / idle / unavailable**: static equalizer background.
 
-Bars are decorative and **not** derived from an audio stream. The widget still returns a safe SVG fallback if Spotify is unavailable.
+The background equalizer has **120 edge-to-edge columns** with seamless, phase-coherent travelling waves. The SVG uses spline interpolation for organic movement (faster when playing, slower for recent tracks); the motion is decorative and **not** derived from an audio stream. The widget still returns a safe SVG fallback if Spotify is unavailable.
 
 ## Embed in your profile
 
