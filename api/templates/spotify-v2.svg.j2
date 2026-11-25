@@ -7,25 +7,25 @@
     <clipPath id="cover-clip"><rect x="23" y="22" width="146" height="146" rx="16"/></clipPath>
     <!-- Hard safety boundary for unusual client SVG font metrics. -->
     <clipPath id="metadata-clip"><rect x="202" y="46" width="368" height="117"/></clipPath>
+    <!-- Album-led palette: dominant accent, with accent_2/3 as quiet support. -->
     <linearGradient id="base-gradient" x1="0" y1="0" x2="1" y2="1">
-      <stop offset="0%" stop-color="#{{ accent_3 }}" stop-opacity=".28"/>
-      <stop offset="55%" stop-color="#{{ background_color }}"/>
-      <stop offset="100%" stop-color="#{{ accent_4 }}" stop-opacity=".20"/>
+      <stop offset="0%" stop-color="#{{ accent }}" stop-opacity=".16"/>
+      <stop offset="52%" stop-color="#{{ background_color }}"/>
+      <stop offset="100%" stop-color="#{{ accent_2 }}" stop-opacity=".09"/>
     </linearGradient>
     <radialGradient id="ambient-album" cx=".13" cy=".2" r=".79">
-      <!-- Drifting album-colored light source, deliberately slow and subtle. -->
-      <animate attributeName="cx" values=".13;.34;.21;.13" dur="17s" repeatCount="indefinite"/>
-      <animate attributeName="cy" values=".20;.30;.13;.20" dur="19s" repeatCount="indefinite"/>
-      <stop offset="0%" stop-color="#{{ accent }}" stop-opacity=".48"/>
-      <stop offset="47%" stop-color="#{{ accent }}" stop-opacity=".14"/>
+      <animate attributeName="cx" values=".13;.27;.18;.13" dur="17s" repeatCount="indefinite"/>
+      <animate attributeName="cy" values=".20;.28;.15;.20" dur="19s" repeatCount="indefinite"/>
+      <stop offset="0%" stop-color="#{{ accent }}" stop-opacity=".27"/>
+      <stop offset="52%" stop-color="#{{ accent }}" stop-opacity=".09"/>
       <stop offset="100%" stop-color="#{{ accent }}" stop-opacity="0"/>
     </radialGradient>
     <radialGradient id="ambient-secondary" cx=".80" cy=".81" r=".67">
-      <animate attributeName="cx" values=".80;.57;.72;.80" dur="20s" repeatCount="indefinite"/>
-      <animate attributeName="cy" values=".81;.64;.85;.81" dur="16s" repeatCount="indefinite"/>
-      <stop offset="0%" stop-color="#{{ accent_2 }}" stop-opacity=".32"/>
-      <stop offset="58%" stop-color="#{{ accent_3 }}" stop-opacity=".12"/>
-      <stop offset="100%" stop-color="#{{ accent_4 }}" stop-opacity="0"/>
+      <animate attributeName="cx" values=".80;.68;.76;.80" dur="20s" repeatCount="indefinite"/>
+      <animate attributeName="cy" values=".81;.70;.86;.81" dur="18s" repeatCount="indefinite"/>
+      <stop offset="0%" stop-color="#{{ accent_2 }}" stop-opacity=".20"/>
+      <stop offset="58%" stop-color="#{{ accent_3 }}" stop-opacity=".06"/>
+      <stop offset="100%" stop-color="#{{ accent_3 }}" stop-opacity="0"/>
     </radialGradient>
     <!-- One shared, global gradient across the full 600px width of the equalizer.
          A repeating album-color cycle travels horizontally without a jump on loop. -->
@@ -50,26 +50,23 @@
       <stop offset="70%" stop-color="#071014" stop-opacity=".61"/>
       <stop offset="100%" stop-color="#071014" stop-opacity=".12"/>
     </linearGradient>
-    <linearGradient id="wave-stroke" x1="0" y1="0" x2="1" y2="0">
-      <stop offset="0%" stop-color="#{{ accent }}" stop-opacity=".10"/>
-      <stop offset="40%" stop-color="#{{ accent_2 }}" stop-opacity=".64"/>
-      <stop offset="100%" stop-color="#{{ accent_3 }}" stop-opacity=".22"/>
+    <!-- Soft album-colored ribbons and radial pools, without blur filters. -->
+    <linearGradient id="wave-stroke" gradientUnits="userSpaceOnUse" x1="0" y1="0" x2="600" y2="0">
+      <stop offset="0%" stop-color="#{{ accent }}" stop-opacity="0"/>
+      <stop offset="40%" stop-color="#{{ accent_2 }}" stop-opacity=".56"/>
+      <stop offset="72%" stop-color="#{{ accent_3 }}" stop-opacity=".33"/>
+      <stop offset="100%" stop-color="#{{ accent }}" stop-opacity="0"/>
     </linearGradient>
-    <!-- Colored volumetric light pools; actual ellipse positions animate,
-         not only the gradient stops, so the backdrop visibly drifts. -->
     <radialGradient id="glow-orb-primary">
-      <stop offset="0%" stop-color="#{{ accent }}" stop-opacity=".64"/>
-      <stop offset="43%" stop-color="#{{ accent_4 }}" stop-opacity=".24"/>
-      <stop offset="100%" stop-color="#{{ accent_4 }}" stop-opacity="0"/>
+      <stop offset="0%" stop-color="#{{ accent }}" stop-opacity=".52"/>
+      <stop offset="43%" stop-color="#{{ accent }}" stop-opacity=".18"/>
+      <stop offset="100%" stop-color="#{{ accent }}" stop-opacity="0"/>
     </radialGradient>
     <radialGradient id="glow-orb-secondary">
-      <stop offset="0%" stop-color="#{{ accent_2 }}" stop-opacity=".58"/>
-      <stop offset="48%" stop-color="#{{ accent_3 }}" stop-opacity=".20"/>
+      <stop offset="0%" stop-color="#{{ accent_2 }}" stop-opacity=".35"/>
+      <stop offset="48%" stop-color="#{{ accent_3 }}" stop-opacity=".12"/>
       <stop offset="100%" stop-color="#{{ accent_3 }}" stop-opacity="0"/>
     </radialGradient>
-    <filter id="soft-blur" x="-30%" y="-80%" width="160%" height="260%">
-      <feGaussianBlur stdDeviation="7"/>
-    </filter>
     <filter id="cover-shadow" x="-40%" y="-40%" width="180%" height="180%">
       <feGaussianBlur stdDeviation="10"/>
     </filter>
@@ -82,60 +79,69 @@
   <rect width="600" height="190" rx="22" fill="#{{ background_color }}"/>
   <g clip-path="url(#card-clip)">
     <rect width="600" height="190" fill="url(#base-gradient)"/>
-    <rect width="600" height="190" fill="url(#ambient-album)" opacity=".88">
-      <animate attributeName="opacity" values=".65;.95;.76;.65" dur="9.5s" repeatCount="indefinite"/>
+    <rect width="600" height="190" fill="url(#ambient-album)" opacity=".74">
+      <animate attributeName="opacity" values=".64;.79;.69;.64" dur="16s" repeatCount="indefinite"/>
     </rect>
-    <rect width="600" height="190" fill="url(#ambient-secondary)" opacity=".78">
-      <animate attributeName="opacity" values=".85;.49;.91;.85" dur="11s" repeatCount="indefinite"/>
+    <rect width="600" height="190" fill="url(#ambient-secondary)" opacity=".67">
+      <animate attributeName="opacity" values=".59;.71;.62;.59" dur="18s" repeatCount="indefinite"/>
     </rect>
-    <!-- Animated background effects: glow pools and ribbon trails stay behind
-         the independent bars, the dark text veil, the cover and all labels. -->
+    <!-- Ambient Flow: low-contrast colored light drifts, rather than flashing. -->
     <g id="background-effects">
       <g id="ambient-glow-orbs">
-        <ellipse id="glow-orb-primary" cx="125" cy="55" rx="215" ry="143"
-                 fill="url(#glow-orb-primary)" opacity=".54">
-          <animate attributeName="cx" values="125;300;180;75;125" dur="9s" repeatCount="indefinite"/>
-          <animate attributeName="cy" values="55;88;142;80;55" dur="11s" repeatCount="indefinite"/>
-          <animate attributeName="opacity" values=".46;.72;.54;.62;.46" dur="8s" repeatCount="indefinite"/>
+        <ellipse id="glow-orb-primary" cx="112" cy="56" rx="206" ry="136"
+                 fill="url(#glow-orb-primary)" opacity=".43">
+          <animate attributeName="cx" values="112;232;152;112" dur="16s" repeatCount="indefinite"/>
+          <animate attributeName="cy" values="56;88;42;56" dur="18s" repeatCount="indefinite"/>
+          <animate attributeName="opacity" values=".35;.53;.41;.35" dur="17s" repeatCount="indefinite"/>
         </ellipse>
-        <ellipse id="glow-orb-secondary" cx="490" cy="145" rx="205" ry="128"
-                 fill="url(#glow-orb-secondary)" opacity=".56">
-          <animate attributeName="cx" values="490;340;455;560;490" dur="10s" repeatCount="indefinite"/>
-          <animate attributeName="cy" values="145;65;35;110;145" dur="12s" repeatCount="indefinite"/>
-          <animate attributeName="opacity" values=".56;.36;.74;.49;.56" dur="7.5s" repeatCount="indefinite"/>
+        <ellipse id="glow-orb-secondary" cx="508" cy="139" rx="192" ry="126"
+                 fill="url(#glow-orb-secondary)" opacity=".40">
+          <animate attributeName="cx" values="508;384;466;508" dur="18s" repeatCount="indefinite"/>
+          <animate attributeName="cy" values="139;73;124;139" dur="16s" repeatCount="indefinite"/>
+          <animate attributeName="opacity" values=".32;.47;.38;.32" dur="15s" repeatCount="indefinite"/>
         </ellipse>
       </g>
     </g>
-    <!-- Colored glass, a light bloom and waveform trails behind all content. -->
+
+    <!-- Exactly two gently morphing ribbons. Their path curves and glow
+         change independently; no strong outlines cross the equalizer. -->
     <g id="background-wave-trails">
       <animateTransform attributeName="transform" type="translate"
-                        values="-12 2;28 -9;-20 10;-12 2"
-                        dur="10.5s" repeatCount="indefinite"/>
-    <path d="M-30 139 C90 80 145 33 240 63 S425 160 635 37" fill="none" stroke="url(#wave-stroke)"
-          stroke-width="15" opacity=".30" filter="url(#soft-blur)">
-      <animate attributeName="opacity" values=".16;.35;.22;.16" dur="13s" repeatCount="indefinite"/>
-    </path>
-    <path d="M-30 130 C90 71 150 28 245 57 S430 146 635 32" fill="none"
-          stroke="url(#wave-stroke)" stroke-width="2" opacity=".55">
-      {% if state in ('playing', 'recent') %}
-      <animate attributeName="opacity" values=".18;.60;.32;.18"
-               dur="{% if state == 'playing' %}5s{% else %}9s{% endif %}" repeatCount="indefinite"/>
-      {% endif %}
-    </path>
-    <path d="M-20 168 C125 146 232 171 338 151 S527 109 630 127" fill="none"
-          stroke="#{{ accent_3 }}" stroke-width="1.5" opacity=".30"/>
+                        values="0 0;9 -4;-7 5;0 0"
+                        dur="18s" repeatCount="indefinite"/>
+      <path id="ambient-ribbon-primary"
+            d="M-30 135 C90 98 154 38 259 75 S442 155 630 54"
+            fill="none" stroke="url(#wave-stroke)" stroke-width="1.4" opacity=".28">
+        <animate attributeName="d" values="M-30 135 C90 98 154 38 259 75 S442 155 630 54;M-30 135 C90 118 160 32 259 72 S447 124 630 54;M-30 135 C92 91 166 48 259 77 S450 163 630 54;M-30 135 C90 98 154 38 259 75 S442 155 630 54"
+                 dur="16s" repeatCount="indefinite"/>
+        <animate attributeName="opacity" values=".18;.34;.22;.18" dur="12s" repeatCount="indefinite"/>
+      </path>
+      <path id="ambient-ribbon-secondary"
+            d="M-28 162 C95 127 183 160 290 142 S483 93 632 118"
+            fill="none" stroke="#{{ accent_3 }}" stroke-width=".95" opacity=".22">
+        <animate attributeName="d" values="M-28 162 C95 127 183 160 290 142 S483 93 632 118;M-28 162 C100 153 175 138 290 148 S486 125 632 118;M-28 162 C88 125 175 167 290 135 S480 86 632 118;M-28 162 C95 127 183 160 290 142 S483 93 632 118"
+                 dur="20s" repeatCount="indefinite"/>
+        <animate attributeName="opacity" values=".14;.26;.18;.14" dur="15s" repeatCount="indefinite"/>
+      </path>
     </g>
 
-    <!-- Background particles and glass finish below the equalizer so the
-         rounded bars are visibly in front of every decorative backdrop effect. -->
-    <g id="background-particles" fill="#{{ accent_2 }}" opacity=".34">
-      <animateTransform attributeName="transform" type="translate"
-                        values="0 0;-15 -6;8 5;0 0" dur="14s"
-                        repeatCount="indefinite"/>
-      <circle cx="570" cy="100" r="1.5"/>
-      <circle cx="520" cy="146" r="1"/>
-      <circle cx="392" cy="25" r="1.2"/>
-      <circle cx="269" cy="169" r="1.1"/>
+    <!-- Sparse highlights with separate drifts; keep behind the bars. -->
+    <g id="background-particles" fill="#{{ accent_2 }}" opacity=".38">
+      <circle cx="542" cy="82" r="1.1">
+        <animate attributeName="cx" values="542;515;549;542" dur="18s" repeatCount="indefinite"/>
+        <animate attributeName="cy" values="82;70;91;82" dur="16s" repeatCount="indefinite"/>
+        <animate attributeName="opacity" values=".2;.48;.28;.2" dur="15s" repeatCount="indefinite"/>
+      </circle>
+      <circle cx="390" cy="35" r=".9" fill="#{{ accent_3 }}">
+        <animate attributeName="cx" values="390;414;385;390" dur="20s" repeatCount="indefinite"/>
+        <animate attributeName="cy" values="35;44;27;35" dur="18s" repeatCount="indefinite"/>
+        <animate attributeName="opacity" values=".21;.42;.24;.21" dur="14s" repeatCount="indefinite"/>
+      </circle>
+      <circle cx="286" cy="170" r="1.0">
+        <animate attributeName="cx" values="286;267;304;286" dur="17s" repeatCount="indefinite"/>
+        <animate attributeName="cy" values="170;160;175;170" dur="19s" repeatCount="indefinite"/>
+        <animate attributeName="opacity" values=".18;.37;.23;.18" dur="16s" repeatCount="indefinite"/>
+      </circle>
     </g>
     <rect width="600" height="190" fill="url(#glass)"/>
 
