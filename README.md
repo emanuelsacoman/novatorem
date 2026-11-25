@@ -11,7 +11,7 @@ Playback status is still preserved in the SVG accessibility description:
 - **recent**: gentler animation on the latest recently played track;
 - **paused / idle / unavailable**: static equalizer background.
 
-The background equalizer has **120 edge-to-edge columns** with a top-to-bottom, multi-stop gradient sampled from the album. Its loop now uses four short-attack, longer-decay pulses per cycle to suggest a steady beat instead of a drifting wave (2.4 s while playing, 3.8 s for recent tracks). Motion is decorative and **not** derived from an audio stream. The widget still returns a safe SVG fallback if Spotify is unavailable.
+The background equalizer has **120 edge-to-edge columns** with a top-to-bottom, multi-stop gradient sampled from the album. Its motion follows the original `main` implementation: **each bar pulses independently**, with its own 500–1,000 ms duration, staggered phase and varying cubic-bezier easing. Recently played tracks use the same style at a slower speed; idle states remain static. SVG-native animations replace the original CSS/`foreignObject`, keeping the GitHub-README-friendly renderer. Motion is decorative and **not** derived from an audio stream. The widget still returns a safe SVG fallback if Spotify is unavailable.
 
 ## Embed in your profile
 
