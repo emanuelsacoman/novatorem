@@ -4,14 +4,14 @@ A Spotify music card for [Emanuel's GitHub profile](https://github.com/emanuelsa
 
 ## Visual design
 
-A clean 600 × 190 px cinematic card containing only cover art, track title and artist — **no Spotify logo, playback label or footer**. Colors are sampled from each album cover with ColorThief (as in the original `main` implementation), then used for **all ambient gradients, animated bars, light trails and glowing frame details**. There is no fixed green branding in the card: all colored effects follow the current album. Monochrome covers produce monochrome lighting. A dark contrast veil keeps the track title and artist readable.
+A clean 600 × 190 px cinematic card containing only cover art, track title and artist — **no Spotify logo, playback label or footer**. Colors are sampled from each album cover with ColorThief (as in the original `main` implementation), then used for **all ambient gradients, animated bars, light trails and glowing frame details**. There is no fixed green branding in the card: all colored effects follow the current album. The title and artist now receive lighter tints from the cover palette, with contrast checks against the dark-glass background. Monochrome covers produce monochrome lighting.
 
 Playback status is still preserved in the SVG accessibility description:
 - **playing**: energetic equalizer animation;
 - **recent**: gentler animation on the latest recently played track;
 - **paused / idle / unavailable**: static equalizer background.
 
-The background equalizer has **120 edge-to-edge columns** with seamless, phase-coherent travelling waves. The SVG uses spline interpolation for organic movement (faster when playing, slower for recent tracks); the motion is decorative and **not** derived from an audio stream. The widget still returns a safe SVG fallback if Spotify is unavailable.
+The background equalizer has **120 edge-to-edge columns** with a top-to-bottom, multi-stop gradient sampled from the album. Its loop now uses four short-attack, longer-decay pulses per cycle to suggest a steady beat instead of a drifting wave (2.4 s while playing, 3.8 s for recent tracks). Motion is decorative and **not** derived from an audio stream. The widget still returns a safe SVG fallback if Spotify is unavailable.
 
 ## Embed in your profile
 
