@@ -58,8 +58,60 @@ class SpotifyWidgetTests(unittest.TestCase):
         sample["album"]["images"] = [{"url": "https://evil.example/cover.png"}]
         with patch.object(spotify.requests, "get") as mock_get:
             image, accent = spotify.album_artwork(sample)
-        self.assertEqual((image, accent), ("", spotify.DEFAULT_ACCENT))
+        self.assertEqual((image, accent), ("", spotify.DEFAULT_PALETTE))
         mock_get.assert_not_called()
+
+    def test_palette_is_extracted_from_album_once_and_changes_with_art(self):
+        sample = track("Chromatic")
+        sample["album"]["images"] = [{"url": "https://i.scdn.co/image/cover"}]
+        image_response = Mock(status_code=200, content=b"fake-image-bytes")
+        image_response.headers = {"Content-Type": "image/jpeg"}
+
+        red = [(220, 40, 55), (235, 100, 45), (170, 50, 75), (255, 180, 130)]
+        blue = [(45, 65, 220), (50, 140, 230), (90, 50, 190), (100, 155, 240)]
+        with patch.object(spotify.requests, "get", return_value=image_response) as mock_get:
+            with patch.object(spotify, "ColorThief") as color_thief:
+                color_thief.return_value.get_palette.side_effect = [red, blue]
+                red_image, red_palette = spotify.album_artwork(sample)
+                blue_image, blue_palette = spotify.album_artwork(sample)
+
+        self.assertTrue(red_image.startswith("data:image/jpeg;base64,"))
+        self.assertEqual(red_image, blue_image)
+        self.assertNotEqual(red_palette["accent"], blue_palette["accent"])
+        self.assertNotEqual(red_palette["accent_2"], blue_palette["accent_2"])
+        self.assertEqual(len(red_palette), 4)
+        self.assertEqual(color_thief.return_value.get_palette.call_count, 2)
+        self.assertEqual(mock_get.call_count, 2)
+
+    def test_gradient_effects_take_colors_from_album_palette(self):
+        sample = track("Color test")
+        custom = {
+            "accent": "ca3456",
+            "accent_2": "de8654",
+            "accent_3": "98458a",
+            "accent_4": "f3b467",
+        }
+        with patch.object(spotify, "spotify_get", return_value={"is_playing": True, "item": sample}):
+            with patch.object(spotify, "album_artwork", return_value=("", custom)):
+                response = spotify.app.test_client().get("/")
+        svg = response.get_data(as_text=True)
+        self.assertEqual(response.status_code, 200)
+        self.assertIn('stop-color="#de8654"', svg)
+        self.assertIn('stop-color="#98458a"', svg)
+        self.assertIn('stop-color="#f3b467"', svg)
+        self.assertIn('stroke="#98458a"', svg)
+        self.assertIn('fill="url(#ambient-secondary)"', svg)
+        self.assertIn('fill="url(#bars-gradient)"', svg)
+
+    def test_monochrome_cover_stays_monochrome(self):
+        with patch.object(spotify, "ColorThief") as color_thief:
+            color_thief.return_value.get_palette.return_value = [
+                (35, 35, 35), (175, 175, 175), (90, 90, 90), (220, 220, 220)
+            ]
+            colors = spotify.palette_from_cover(b"sample")
+        for color in colors.values():
+            self.assertEqual(color[0:2], color[2:4])
+            self.assertEqual(color[2:4], color[4:6])
 
     def test_refresh_token_failure_never_exposes_secrets(self):
         response = Mock(status_code=400)
