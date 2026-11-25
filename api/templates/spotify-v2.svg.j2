@@ -126,6 +126,19 @@
           stroke="#{{ accent_3 }}" stroke-width="1.5" opacity=".30"/>
     </g>
 
+    <!-- Background particles and glass finish below the equalizer so the
+         rounded bars are visibly in front of every decorative backdrop effect. -->
+    <g id="background-particles" fill="#{{ accent_2 }}" opacity=".34">
+      <animateTransform attributeName="transform" type="translate"
+                        values="0 0;-15 -6;8 5;0 0" dur="14s"
+                        repeatCount="indefinite"/>
+      <circle cx="570" cy="100" r="1.5"/>
+      <circle cx="520" cy="146" r="1"/>
+      <circle cx="392" cy="25" r="1.2"/>
+      <circle cx="269" cy="169" r="1.1"/>
+    </g>
+    <rect width="600" height="190" fill="url(#glass)"/>
+
     <!-- Main-style independent pulses; 50 bars, each 11 px wide with exactly 1 px gaps. -->
     <g id="equalizer-wave" opacity="{% if state in ('playing', 'recent') %}.89{% else %}.29{% endif %}"
        fill="url(#bars-gradient)">
@@ -931,21 +944,8 @@
       </rect>
     </g>
 
-    <!-- Text contrast layer ensures effects never compromise legibility. -->
+    <!-- Text contrast veil remains above the bars for readable metadata. -->
     <rect x="185" y="26" width="408" height="135" rx="15" fill="url(#text-shade)" opacity=".79"/>
-
-    <!-- Tiny specular particles move separately, above the equalizer but
-         still under the glass, cover, and labels. -->
-    <g id="background-particles" fill="#{{ accent_2 }}" opacity=".34">
-      <animateTransform attributeName="transform" type="translate"
-                        values="0 0;-15 -6;8 5;0 0" dur="14s"
-                        repeatCount="indefinite"/>
-      <circle cx="570" cy="100" r="1.5"/>
-      <circle cx="520" cy="146" r="1"/>
-      <circle cx="392" cy="25" r="1.2"/>
-      <circle cx="269" cy="169" r="1.1"/>
-    </g>
-    <rect width="600" height="190" fill="url(#glass)"/>
 
     <!-- Soft halo and crisp album cover. -->
     <rect x="20" y="20" width="152" height="152" rx="19" fill="#{{ accent }}"
