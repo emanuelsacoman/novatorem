@@ -514,10 +514,28 @@ class SpotifyWidgetTests(unittest.TestCase):
         self.assertEqual(motion.get("repeatCount"), "indefinite")
         self.assertEqual(motion.get("values").split(";")[0],
                          motion.get("values").split(";")[-1])
-        self.assertGreaterEqual(len(wave.findall(f"{ns}path")), 3)
+        ribbons = wave.findall(f"{ns}path")
+        self.assertEqual(len(ribbons), 2)
+        for ribbon in ribbons:
+            curve = ribbon.find(f"{ns}animate[@attributeName='d']")
+            shimmer = ribbon.find(f"{ns}animate[@attributeName='opacity']")
+            self.assertIsNotNone(curve)
+            self.assertIsNotNone(shimmer)
+            self.assertEqual(curve.get("repeatCount"), "indefinite")
+            self.assertEqual(curve.get("values").split(";")[0],
+                             curve.get("values").split(";")[-1])
+            self.assertGreaterEqual(len(set(curve.get("values").split(";"))), 3)
+            self.assertEqual(shimmer.get("repeatCount"), "indefinite")
 
         particles = root.find(f".//{ns}g[@id='background-particles']")
-        self.assertIsNotNone(particles.find(f"{ns}animateTransform"))
+        self.assertIsNotNone(particles)
+        self.assertEqual(len(particles.findall(f"{ns}circle")), 3)
+        for particle in particles.findall(f"{ns}circle"):
+            motions = {a.get("attributeName"): a
+                       for a in particle.findall(f"{ns}animate")}
+            self.assertEqual(set(motions), {"cx", "cy", "opacity"})
+            self.assertTrue(all(a.get("repeatCount") == "indefinite"
+                                for a in motions.values()))
 
         clipped_content = root.find(f"{ns}g[@clip-path='url(#card-clip)']")
         children = list(clipped_content)
@@ -582,12 +600,97 @@ class SpotifyWidgetTests(unittest.TestCase):
         secondary = root.find(f".//{ns}radialGradient[@id='glow-orb-secondary']")
         self.assertEqual(
             [stop.get("stop-color") for stop in primary.findall(f"{ns}stop")],
-            ["#dd3355", "#ffbb66", "#ffbb66"],
+            ["#dd3355", "#dd3355", "#dd3355"],
         )
         self.assertEqual(
             [stop.get("stop-color") for stop in secondary.findall(f"{ns}stop")],
             ["#ee6655", "#ba4477", "#ba4477"],
         )
+
+    def test_ambient_flow_is_subtle_and_paced_behind_the_bars(self):
+        import xml.etree.ElementTree as ET
+
+        with patch.object(spotify, "spotify_get", return_value={
+            "is_playing": True, "item": track()
+        }):
+            svg = spotify.app.test_client().get("/").get_data(as_text=True)
+
+        ns = "{http://www.w3.org/2000/svg}"
+        root = ET.fromstring(svg)
+        effects = root.find(f".//{ns}g[@id='background-effects']")
+        glows = effects.find(f"{ns}g[@id='ambient-glow-orbs']")
+        orbs = glows.findall(f"{ns}ellipse")
+        self.assertEqual(len(orbs), 2)
+        for orb in orbs:
+            motions = {a.get("attributeName"): a
+                       for a in orb.findall(f"{ns}animate")}
+            self.assertEqual(set(motions), {"cx", "cy", "opacity"})
+            self.assertTrue(all(
+                15 <= float(a.get("dur").removesuffix("s")) <= 18
+                for a in motions.values()
+            ))
+            self.assertTrue(all(
+                a.get("values").split(";")[0] == a.get("values").split(";")[-1]
+                for a in motions.values()
+            ))
+            self.assertLess(float(orb.get("opacity")), .5)
+
+        ribbons = root.findall(f".//{ns}g[@id='background-wave-trails']/{ns}path")
+        self.assertEqual(len(ribbons), 2)
+        self.assertTrue(all(
+            float(ribbon.get("stroke-width")) <= 1.4
+            for ribbon in ribbons
+        ))
+        self.assertTrue(all(
+            float(ribbon.get("opacity")) <= .28
+            for ribbon in ribbons
+        ))
+        self.assertTrue(all(ribbon.find(f"{ns}animate[@attributeName='d']")
+                            is not None for ribbon in ribbons))
+
+        particles = root.findall(f".//{ns}g[@id='background-particles']/{ns}circle")
+        self.assertEqual(len(particles), 3)
+        self.assertEqual(len(root.findall(f".//{ns}g[@id='equalizer-wave']/{ns}rect")), 50)
+        self.assertIsNotNone(root.find(
+            f".//{ns}linearGradient[@id='bars-gradient']/{ns}animateTransform"
+        ))
+        self.assertIsNotNone(root.find(f".//{ns}g[@id='metadata-text']"))
+        self.assertNotIn("soft-blur", svg)
+        self.assertNotIn("<script", svg.lower())
+        self.assertNotIn("<foreignObject", svg)
+
+    def test_ambient_palette_uses_dominant_cover_color_and_two_supporting_hues(self):
+        import xml.etree.ElementTree as ET
+
+        palette = {
+            "accent": "123456", "accent_2": "778899",
+            "accent_3": "abcdef", "accent_4": "fefefe"
+        }
+        with patch.object(spotify, "spotify_get", return_value={
+            "is_playing": True, "item": track()
+        }), patch.object(spotify, "album_artwork", return_value=("", palette)):
+            svg = spotify.app.test_client().get("/").get_data(as_text=True)
+
+        ns = "{http://www.w3.org/2000/svg}"
+        root = ET.fromstring(svg)
+        base = root.find(f".//{ns}linearGradient[@id='base-gradient']")
+        primary = root.find(f".//{ns}radialGradient[@id='glow-orb-primary']")
+        secondary = root.find(f".//{ns}radialGradient[@id='glow-orb-secondary']")
+        self.assertEqual(base.find(f"{ns}stop").get("stop-color"), "#123456")
+        self.assertTrue(all(
+            stop.get("stop-color") == "#123456"
+            for stop in primary.findall(f"{ns}stop")
+        ))
+        self.assertEqual(
+            [stop.get("stop-color") for stop in secondary.findall(f"{ns}stop")],
+            ["#778899", "#abcdef", "#abcdef"]
+        )
+        # The moving bar gradient still uses the full album palette.
+        bar_colors = [
+            stop.get("stop-color")
+            for stop in root.findall(f".//{ns}linearGradient[@id='bars-gradient']/{ns}stop")
+        ]
+        self.assertIn("#fefefe", bar_colors)
 
     def test_empty_state_has_static_equalizer(self):
         with patch.object(spotify, "spotify_get", side_effect=[
