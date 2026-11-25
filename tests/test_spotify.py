@@ -103,6 +103,38 @@ class SpotifyWidgetTests(unittest.TestCase):
         self.assertIn('fill="url(#ambient-secondary)"', svg)
         self.assertIn('fill="url(#bars-gradient)"', svg)
 
+    def test_album_tinted_text_is_readable_and_changes_by_cover(self):
+        colors = [
+            {"accent": "bb1020", "accent_2": "c53050", "accent_3": "882244", "accent_4": "e64567"},
+            {"accent": "104ea2", "accent_2": "236bd6", "accent_3": "124289", "accent_4": "35a7ee"},
+        ]
+        outputs = []
+        with patch.object(spotify, "spotify_get", return_value={"is_playing": True, "item": track()}):
+            for palette in colors:
+                with patch.object(spotify, "album_artwork", return_value=("", palette)):
+                    response = spotify.app.test_client().get("/")
+                svg = response.get_data(as_text=True)
+                # Verify actual SVG rather than using the synthetic view's fallback colors.
+                import re
+                title_color = re.search(r'fill="#([0-9a-f]{6})">Sample Song</text>', svg).group(1)
+                artist_color = re.search(r'fill="#([0-9a-f]{6})">Sample Artist</text>', svg).group(1)
+                background = spotify.relative_luminance("26343d")
+                self.assertGreaterEqual((spotify.relative_luminance(title_color) + .05) / (background + .05), 7)
+                self.assertGreaterEqual((spotify.relative_luminance(artist_color) + .05) / (background + .05), 4.5)
+                outputs.append((title_color, artist_color))
+        self.assertNotEqual(outputs[0], outputs[1])
+
+    def test_equalizer_gradient_has_album_colors_and_vertical_fade(self):
+        with patch.object(spotify, "spotify_get", return_value={"is_playing": True, "item": track()}):
+            with patch.object(spotify, "album_artwork", return_value=("", {
+                "accent": "8e325a", "accent_2": "e56b82", "accent_3": "863b80", "accent_4": "fdc77d"
+            })):
+                svg = spotify.app.test_client().get("/").get_data(as_text=True)
+        self.assertIn('id="bars-gradient" x1="0%" y1="0%" x2="0%" y2="100%"', svg)
+        self.assertIn('stop-color="#fdc77d" stop-opacity=".94"', svg)
+        self.assertIn('stop-color="#e56b82" stop-opacity=".84"', svg)
+        self.assertIn('stop-color="#8e325a" stop-opacity=".10"', svg)
+
     def test_monochrome_cover_stays_monochrome(self):
         with patch.object(spotify, "ColorThief") as color_thief:
             color_thief.return_value.get_palette.return_value = [
@@ -219,13 +251,20 @@ class SpotifyWidgetTests(unittest.TestCase):
             self.assertIsNotNone(height_animation)
             self.assertIsNotNone(y_animation)
             self.assertEqual(height_animation.get("calcMode"), "spline")
-            self.assertEqual(height_animation.get("dur"), "14s")
+            self.assertEqual(height_animation.get("dur"), "3.8s")
             values = [float(v) for v in height_animation.get("values").split(";")]
             ys = [float(v) for v in y_animation.get("values").split(";")]
-            self.assertEqual(len(values), 13)
+            self.assertEqual(len(values), 18)
             self.assertEqual(values[0], values[-1])
             self.assertEqual(ys[0], ys[-1])
-            self.assertEqual(len(height_animation.get("keySplines").split(";")), 12)
+            self.assertEqual(len(height_animation.get("keySplines").split(";")), 17)
+            times = [float(v) for v in height_animation.get("keyTimes").split(";")]
+            self.assertEqual(len(times), 18)
+            self.assertEqual(times[0], 0)
+            self.assertEqual(times[-1], 1)
+            self.assertGreater(values[5], values[4] + 25)
+            self.assertGreater(values[9], values[8] + 25)
+            self.assertGreater(values[13], values[12] + 25)
             self.assertTrue(all(abs(v + y - 189) < .01 for v, y in zip(values, ys)))
 
         self.assertGreater(len(set(heights)), 20)
@@ -241,7 +280,7 @@ class SpotifyWidgetTests(unittest.TestCase):
         ns = "{http://www.w3.org/2000/svg}"
         equalizer = root.find(f".//{ns}g[@id='equalizer-wave']")
         self.assertEqual(len(equalizer.findall(f"{ns}rect")), 120)
-        self.assertEqual(equalizer.find(f"{ns}rect/{ns}animate").get("dur"), "8.4s")
+        self.assertEqual(equalizer.find(f"{ns}rect/{ns}animate").get("dur"), "2.4s")
 
     def test_empty_state_has_static_equalizer(self):
         with patch.object(spotify, "spotify_get", side_effect=[
