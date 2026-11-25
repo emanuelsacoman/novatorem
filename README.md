@@ -2,15 +2,16 @@
 
 A Spotify music card for [Emanuel's GitHub profile](https://github.com/emanuelsacoman), powered by Flask and deployed with Vercel.
 
-## What it shows
+## Visual design
 
-- **NOW PLAYING** — an active track on Spotify.
-- **LAST PLAYED** — the newest recently played track when playback isn't active.
-- **PAUSED** — the paused track when recent history is unavailable.
-- **NOT PLAYING** — no track data available.
-- **SPOTIFY UNAVAILABLE** — safe SVG fallback if the API, credentials, or album artwork fails.
+A clean 600 × 190 px, cinematic card: cover art, track title, artist and a small Spotify mark. There is **no visible playback status label** or footer. The colors mix Spotify green with an accent sampled from the album cover; decorative equalizer bars and light trails animate across the background, behind a contrast veil to preserve text legibility.
 
-The card is a **native SVG** (no HTML `foreignObject`), designed for GitHub READMEs. The colored bars are decorative, not a real audio analyzer.
+Playback status is still preserved in the SVG accessibility description:
+- **playing**: energetic equalizer animation;
+- **recent**: gentler animation on the latest recently played track;
+- **paused / idle / unavailable**: static equalizer background.
+
+Bars are decorative and **not** derived from an audio stream. The widget still returns a safe SVG fallback if Spotify is unavailable.
 
 ## Embed in your profile
 
