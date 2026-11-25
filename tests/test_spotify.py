@@ -392,7 +392,7 @@ class SpotifyWidgetTests(unittest.TestCase):
             # Lower rounded corners are clipped 4.2px below the visible card floor.
             self.assertTrue(all(abs(h + y - 193.2) < .01 for h, y in zip(heights, positions)))
             self.assertAlmostEqual(float(bar.get("height")) + float(bar.get("y")), 193.2, places=2)
-            self.assertGreaterEqual(193.2 - 189, float(bar.get("ry")))
+            self.assertAlmostEqual(193.2 - 189, float(bar.get("ry")), places=2)
         self.assertGreater(len(set(durations)), 30)
         self.assertGreater(len(set(starts)), 30)
         self.assertGreater(len(set(splines)), 30)
@@ -420,7 +420,7 @@ class SpotifyWidgetTests(unittest.TestCase):
             bottom = float(bar.get("y")) + float(bar.get("height"))
             # By clipping at or before the start of the lower corner, the
             # bottom visible edge is flat despite the SVG rounded rectangle.
-            self.assertGreaterEqual(bottom - visible_floor, radius)
+            self.assertAlmostEqual(bottom - visible_floor, radius, places=2)
             self.assertGreater(float(bar.get("height")), radius * 2)
 
     def test_playing_uses_original_main_duration_range(self):
