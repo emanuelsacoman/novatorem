@@ -102,11 +102,24 @@ class SpotifyWidgetTests(unittest.TestCase):
         body = response.get_data(as_text=True)
         self.assertEqual(response.status_code, 200)
         self.assertIn("image/svg+xml", response.content_type)
-        self.assertIn("NOW PLAYING", body)
+        self.assertIn("NOW PLAYING", body)  # Accessible SVG description only
+        self.assertNotIn(">NOW PLAYING</text>", body)
+        self.assertIn("url(#bars-gradient)", body)
+        self.assertIn("url(#ambient-green)", body)
         self.assertIn("&lt;script&gt;", body)
         self.assertNotIn("<script>", body)
         self.assertIn('fill="#0d1117"', body)
         self.assertIn("s-maxage=60", response.headers["Cache-Control"])
+
+    def test_clean_card_contains_only_title_and_artist_as_visible_copy(self):
+        with patch.object(spotify, "spotify_get", return_value={"is_playing": True, "item": track("Sample Song")}):
+            response = spotify.app.test_client().get("/")
+        body = response.get_data(as_text=True)
+        self.assertIn(">Sample Song</text>", body)
+        self.assertIn(">Sample Artist</text>", body)
+        self.assertNotIn(">Spotify API", body)
+        self.assertNotIn(">NOW PLAYING</text>", body)
+        self.assertIn('width="600" height="190"', body)
 
     def test_paused_track_survives_recent_history_error(self):
         current = {"is_playing": False, "item": track("Paused Song")}
@@ -125,8 +138,8 @@ class SpotifyWidgetTests(unittest.TestCase):
             response = spotify.app.test_client().get("/")
         body = response.get_data(as_text=True)
         self.assertIn("LAST PLAYED", body)
-        self.assertEqual(body.count('attributeName="height"'), 12)
-        self.assertEqual(body.count('attributeName="y"'), 12)
+        self.assertEqual(body.count('attributeName="height"'), 48)
+        self.assertEqual(body.count('attributeName="y"'), 48)
         self.assertIn('repeatCount="indefinite"', body)
 
     def test_empty_state_has_static_equalizer(self):
