@@ -118,6 +118,26 @@ class SpotifyWidgetTests(unittest.TestCase):
         self.assertEqual(response.headers["X-Widget-Status"], "ok")
         self.assertIn("PAUSED", response.get_data(as_text=True))
 
+    def test_recently_played_bars_animate_decoratively(self):
+        with patch.object(spotify, "spotify_get", side_effect=[
+            None, {"items": [{"track": track("November")}]}
+        ]):
+            response = spotify.app.test_client().get("/")
+        body = response.get_data(as_text=True)
+        self.assertIn("LAST PLAYED", body)
+        self.assertEqual(body.count('attributeName="height"'), 12)
+        self.assertEqual(body.count('attributeName="y"'), 12)
+        self.assertIn('repeatCount="indefinite"', body)
+
+    def test_empty_state_has_static_equalizer(self):
+        with patch.object(spotify, "spotify_get", side_effect=[
+            None, {"items": []}
+        ]):
+            response = spotify.app.test_client().get("/")
+        body = response.get_data(as_text=True)
+        self.assertIn("NOT PLAYING", body)
+        self.assertNotIn('attributeName="height"', body)
+
     def test_offline_fallback_keeps_svg_available(self):
         with patch.object(spotify, "spotify_get", side_effect=spotify.SpotifyUnavailable("API error")):
             response = spotify.app.test_client().get("/")
