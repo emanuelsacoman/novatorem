@@ -25,12 +25,18 @@
       <stop offset="58%" stop-color="#{{ accent_3 }}" stop-opacity=".12"/>
       <stop offset="100%" stop-color="#{{ accent_4 }}" stop-opacity="0"/>
     </radialGradient>
-    <!-- Strong top-to-bottom album-color fade, with a luminous cap and soft floor. -->
-    <linearGradient id="bars-gradient" x1="0%" y1="0%" x2="0%" y2="100%">
-      <stop offset="0%" stop-color="#{{ accent_4 }}" stop-opacity=".94"/>
-      <stop offset="20%" stop-color="#{{ accent_2 }}" stop-opacity=".84"/>
-      <stop offset="58%" stop-color="#{{ accent_3 }}" stop-opacity=".58"/>
-      <stop offset="100%" stop-color="#{{ accent }}" stop-opacity=".10"/>
+    <!-- One shared, global gradient across the full 600px width of the equalizer.
+         A repeating album-color cycle travels horizontally without a jump on loop. -->
+    <linearGradient id="bars-gradient" gradientUnits="userSpaceOnUse"
+                    x1="0" y1="0" x2="600" y2="0" spreadMethod="repeat">
+      <stop offset="0%" stop-color="#{{ accent_4 }}" stop-opacity=".84"/>
+      <stop offset="25%" stop-color="#{{ accent_2 }}" stop-opacity=".94"/>
+      <stop offset="50%" stop-color="#{{ accent_3 }}" stop-opacity=".76"/>
+      <stop offset="75%" stop-color="#{{ accent }}" stop-opacity=".90"/>
+      <stop offset="100%" stop-color="#{{ accent_4 }}" stop-opacity=".84"/>
+      <animateTransform attributeName="gradientTransform" type="translate"
+                        from="0 0" to="600 0" dur="10s"
+                        repeatCount="indefinite"/>
     </linearGradient>
     <linearGradient id="glass" x1="0" y1="0" x2="0" y2="1">
       <stop offset="0%" stop-color="#fff" stop-opacity=".10"/>
