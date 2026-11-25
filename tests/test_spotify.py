@@ -498,6 +498,44 @@ class SpotifyWidgetTests(unittest.TestCase):
         self.assertEqual(len(root.findall(f".//{ns}g[@id='equalizer-wave']/{ns}rect")), 50)
         self.assertEqual(len(root.findall(f".//{ns}g[@id='equalizer-wave']//{ns}animate")), 0)
 
+    def test_equalizer_is_in_front_of_every_background_layer(self):
+        import xml.etree.ElementTree as ET
+
+        with patch.object(spotify, "spotify_get", return_value={
+            "is_playing": True, "item": track()
+        }):
+            svg = spotify.app.test_client().get("/").get_data(as_text=True)
+
+        ns = "{http://www.w3.org/2000/svg}"
+        root = ET.fromstring(svg)
+        card = root.find(f"{ns}g[@clip-path='url(#card-clip)']")
+        children = list(card)
+
+        effects = card.find(f"{ns}g[@id='background-effects']")
+        trails = card.find(f"{ns}g[@id='background-wave-trails']")
+        particles = card.find(f"{ns}g[@id='background-particles']")
+        glass = next(
+            item for item in children if item.get("fill") == "url(#glass)"
+        )
+        equalizer = card.find(f"{ns}g[@id='equalizer-wave']")
+        text_veil = next(
+            item for item in children if item.get("fill") == "url(#text-shade)"
+        )
+        metadata = card.find(f"{ns}g[@id='metadata-text']")
+
+        self.assertTrue(all(layer is not None for layer in (
+            effects, trails, particles, glass, equalizer, text_veil, metadata
+        )))
+        self.assertTrue(all(children.index(layer) < children.index(equalizer)
+                            for layer in (effects, trails, particles, glass)))
+        self.assertLess(children.index(equalizer), children.index(text_veil))
+        self.assertLess(children.index(text_veil), children.index(metadata))
+        self.assertEqual(len(equalizer.findall(f"{ns}rect")), 50)
+        self.assertTrue(all(
+            bar.get("rx") == "4.2" and bar.get("ry") == "4.2"
+            for bar in equalizer.findall(f"{ns}rect")
+        ))
+
     def test_background_glow_colors_follow_the_cover(self):
         import xml.etree.ElementTree as ET
 
