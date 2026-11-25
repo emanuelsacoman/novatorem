@@ -140,11 +140,13 @@
     <rect width="600" height="190" fill="url(#glass)"/>
 
     <!-- Main-style independent pulses; 50 bars, each 11 px wide with exactly 1 px gaps. -->
+    <!-- Extend rounded lower ends below the card clipping boundary (y=189)
+         to make visible bottoms square while retaining 4.2px rounded tops. -->
     <g id="equalizer-wave" opacity="{% if state in ('playing', 'recent') %}.89{% else %}.29{% endif %}"
        fill="url(#bars-gradient)">
-      <rect x="0.50" y="176" width="11.00" height="13" rx="4.2" ry="4.2">
+      <rect x="0.50" y="176" width="11.00" height="17.2" rx="4.2" ry="4.2">
         {% if state in ('playing', 'recent') %}
-        <animate attributeName="height" values="13;86;13" keyTimes="0;0.5;1"
+        <animate attributeName="height" values="17.2;90.2;17.2" keyTimes="0;0.5;1"
                  calcMode="spline" keySplines="0.26 0.00 0.49 0.81;0.57 0.08 0.73 0.97"
                  dur="{% if state == 'playing' %}501ms{% else %}802ms{% endif %}"
                  begin="-210ms" repeatCount="indefinite"/>
@@ -158,9 +160,9 @@
                  begin="-210ms" repeatCount="indefinite"/>
         {% endif %}
       </rect>
-      <rect x="12.50" y="178" width="11.00" height="11" rx="4.2" ry="4.2">
+      <rect x="12.50" y="178" width="11.00" height="15.2" rx="4.2" ry="4.2">
         {% if state in ('playing', 'recent') %}
-        <animate attributeName="height" values="11;100;11" keyTimes="0;0.5;1"
+        <animate attributeName="height" values="15.2;104.2;15.2" keyTimes="0;0.5;1"
                  calcMode="spline" keySplines="0.30 0.03 0.47 0.80;0.55 0.07 0.81 0.92"
                  dur="{% if state == 'playing' %}948ms{% else %}1517ms{% endif %}"
                  begin="-46ms" repeatCount="indefinite"/>
@@ -174,9 +176,9 @@
                  begin="-46ms" repeatCount="indefinite"/>
         {% endif %}
       </rect>
-      <rect x="24.50" y="180" width="11.00" height="9" rx="4.2" ry="4.2">
+      <rect x="24.50" y="180" width="11.00" height="13.2" rx="4.2" ry="4.2">
         {% if state in ('playing', 'recent') %}
-        <animate attributeName="height" values="9;69;9" keyTimes="0;0.5;1"
+        <animate attributeName="height" values="13.2;73.2;13.2" keyTimes="0;0.5;1"
                  calcMode="spline" keySplines="0.30 0.01 0.45 0.84;0.58 0.14 0.70 0.70"
                  dur="{% if state == 'playing' %}916ms{% else %}1466ms{% endif %}"
                  begin="-152ms" repeatCount="indefinite"/>
@@ -190,9 +192,9 @@
                  begin="-152ms" repeatCount="indefinite"/>
         {% endif %}
       </rect>
-      <rect x="36.50" y="181" width="11.00" height="8" rx="4.2" ry="4.2">
+      <rect x="36.50" y="181" width="11.00" height="12.2" rx="4.2" ry="4.2">
         {% if state in ('playing', 'recent') %}
-        <animate attributeName="height" values="8;68;8" keyTimes="0;0.5;1"
+        <animate attributeName="height" values="12.2;72.2;12.2" keyTimes="0;0.5;1"
                  calcMode="spline" keySplines="0.28 0.11 0.49 0.86;0.45 0.11 0.80 0.77"
                  dur="{% if state == 'playing' %}868ms{% else %}1389ms{% endif %}"
                  begin="-674ms" repeatCount="indefinite"/>
@@ -206,9 +208,9 @@
                  begin="-674ms" repeatCount="indefinite"/>
         {% endif %}
       </rect>
-      <rect x="48.50" y="174" width="11.00" height="15" rx="4.2" ry="4.2">
+      <rect x="48.50" y="174" width="11.00" height="19.2" rx="4.2" ry="4.2">
         {% if state in ('playing', 'recent') %}
-        <animate attributeName="height" values="15;57;15" keyTimes="0;0.5;1"
+        <animate attributeName="height" values="19.2;61.2;19.2" keyTimes="0;0.5;1"
                  calcMode="spline" keySplines="0.21 0.00 0.42 0.89;0.43 0.16 0.87 0.85"
                  dur="{% if state == 'playing' %}604ms{% else %}966ms{% endif %}"
                  begin="-550ms" repeatCount="indefinite"/>
@@ -222,9 +224,9 @@
                  begin="-550ms" repeatCount="indefinite"/>
         {% endif %}
       </rect>
-      <rect x="60.50" y="175" width="11.00" height="14" rx="4.2" ry="4.2">
+      <rect x="60.50" y="175" width="11.00" height="18.2" rx="4.2" ry="4.2">
         {% if state in ('playing', 'recent') %}
-        <animate attributeName="height" values="14;82;14" keyTimes="0;0.5;1"
+        <animate attributeName="height" values="18.2;86.2;18.2" keyTimes="0;0.5;1"
                  calcMode="spline" keySplines="0.31 0.00 0.34 0.79;0.61 0.09 0.71 0.73"
                  dur="{% if state == 'playing' %}694ms{% else %}1110ms{% endif %}"
                  begin="-442ms" repeatCount="indefinite"/>
@@ -238,9 +240,9 @@
                  begin="-442ms" repeatCount="indefinite"/>
         {% endif %}
       </rect>
-      <rect x="72.50" y="181" width="11.00" height="8" rx="4.2" ry="4.2">
+      <rect x="72.50" y="181" width="11.00" height="12.2" rx="4.2" ry="4.2">
         {% if state in ('playing', 'recent') %}
-        <animate attributeName="height" values="8;92;8" keyTimes="0;0.5;1"
+        <animate attributeName="height" values="12.2;96.2;12.2" keyTimes="0;0.5;1"
                  calcMode="spline" keySplines="0.27 0.11 0.47 0.85;0.39 0.03 0.89 0.89"
                  dur="{% if state == 'playing' %}511ms{% else %}818ms{% endif %}"
                  begin="-445ms" repeatCount="indefinite"/>
@@ -254,9 +256,9 @@
                  begin="-445ms" repeatCount="indefinite"/>
         {% endif %}
       </rect>
-      <rect x="84.50" y="180" width="11.00" height="9" rx="4.2" ry="4.2">
+      <rect x="84.50" y="180" width="11.00" height="13.2" rx="4.2" ry="4.2">
         {% if state in ('playing', 'recent') %}
-        <animate attributeName="height" values="9;64;9" keyTimes="0;0.5;1"
+        <animate attributeName="height" values="13.2;68.2;13.2" keyTimes="0;0.5;1"
                  calcMode="spline" keySplines="0.35 0.14 0.50 0.85;0.50 0.05 0.72 0.73"
                  dur="{% if state == 'playing' %}650ms{% else %}1040ms{% endif %}"
                  begin="-451ms" repeatCount="indefinite"/>
@@ -270,9 +272,9 @@
                  begin="-451ms" repeatCount="indefinite"/>
         {% endif %}
       </rect>
-      <rect x="96.50" y="174" width="11.00" height="15" rx="4.2" ry="4.2">
+      <rect x="96.50" y="174" width="11.00" height="19.2" rx="4.2" ry="4.2">
         {% if state in ('playing', 'recent') %}
-        <animate attributeName="height" values="15;103;15" keyTimes="0;0.5;1"
+        <animate attributeName="height" values="19.2;107.2;19.2" keyTimes="0;0.5;1"
                  calcMode="spline" keySplines="0.26 0.10 0.38 0.83;0.58 0.13 0.87 0.84"
                  dur="{% if state == 'playing' %}678ms{% else %}1085ms{% endif %}"
                  begin="-294ms" repeatCount="indefinite"/>
@@ -286,9 +288,9 @@
                  begin="-294ms" repeatCount="indefinite"/>
         {% endif %}
       </rect>
-      <rect x="108.50" y="181" width="11.00" height="8" rx="4.2" ry="4.2">
+      <rect x="108.50" y="181" width="11.00" height="12.2" rx="4.2" ry="4.2">
         {% if state in ('playing', 'recent') %}
-        <animate attributeName="height" values="8;95;8" keyTimes="0;0.5;1"
+        <animate attributeName="height" values="12.2;99.2;12.2" keyTimes="0;0.5;1"
                  calcMode="spline" keySplines="0.16 0.10 0.50 0.90;0.47 0.07 0.70 0.90"
                  dur="{% if state == 'playing' %}978ms{% else %}1565ms{% endif %}"
                  begin="-14ms" repeatCount="indefinite"/>
@@ -302,9 +304,9 @@
                  begin="-14ms" repeatCount="indefinite"/>
         {% endif %}
       </rect>
-      <rect x="120.50" y="180" width="11.00" height="9" rx="4.2" ry="4.2">
+      <rect x="120.50" y="180" width="11.00" height="13.2" rx="4.2" ry="4.2">
         {% if state in ('playing', 'recent') %}
-        <animate attributeName="height" values="9;85;9" keyTimes="0;0.5;1"
+        <animate attributeName="height" values="13.2;89.2;13.2" keyTimes="0;0.5;1"
                  calcMode="spline" keySplines="0.17 0.04 0.53 1.00;0.58 0.12 0.76 0.92"
                  dur="{% if state == 'playing' %}957ms{% else %}1531ms{% endif %}"
                  begin="-109ms" repeatCount="indefinite"/>
@@ -318,9 +320,9 @@
                  begin="-109ms" repeatCount="indefinite"/>
         {% endif %}
       </rect>
-      <rect x="132.50" y="180" width="11.00" height="9" rx="4.2" ry="4.2">
+      <rect x="132.50" y="180" width="11.00" height="13.2" rx="4.2" ry="4.2">
         {% if state in ('playing', 'recent') %}
-        <animate attributeName="height" values="9;70;9" keyTimes="0;0.5;1"
+        <animate attributeName="height" values="13.2;74.2;13.2" keyTimes="0;0.5;1"
                  calcMode="spline" keySplines="0.32 0.12 0.42 0.86;0.43 0.16 0.75 0.72"
                  dur="{% if state == 'playing' %}772ms{% else %}1235ms{% endif %}"
                  begin="-255ms" repeatCount="indefinite"/>
@@ -334,9 +336,9 @@
                  begin="-255ms" repeatCount="indefinite"/>
         {% endif %}
       </rect>
-      <rect x="144.50" y="182" width="11.00" height="7" rx="4.2" ry="4.2">
+      <rect x="144.50" y="182" width="11.00" height="11.2" rx="4.2" ry="4.2">
         {% if state in ('playing', 'recent') %}
-        <animate attributeName="height" values="7;107;7" keyTimes="0;0.5;1"
+        <animate attributeName="height" values="11.2;111.2;11.2" keyTimes="0;0.5;1"
                  calcMode="spline" keySplines="0.22 0.05 0.45 0.89;0.49 0.12 0.82 0.76"
                  dur="{% if state == 'playing' %}903ms{% else %}1445ms{% endif %}"
                  begin="-105ms" repeatCount="indefinite"/>
@@ -350,9 +352,9 @@
                  begin="-105ms" repeatCount="indefinite"/>
         {% endif %}
       </rect>
-      <rect x="156.50" y="176" width="11.00" height="13" rx="4.2" ry="4.2">
+      <rect x="156.50" y="176" width="11.00" height="17.2" rx="4.2" ry="4.2">
         {% if state in ('playing', 'recent') %}
-        <animate attributeName="height" values="13;76;13" keyTimes="0;0.5;1"
+        <animate attributeName="height" values="17.2;80.2;17.2" keyTimes="0;0.5;1"
                  calcMode="spline" keySplines="0.38 0.03 0.34 0.77;0.48 0.08 0.86 0.94"
                  dur="{% if state == 'playing' %}820ms{% else %}1312ms{% endif %}"
                  begin="-559ms" repeatCount="indefinite"/>
@@ -366,9 +368,9 @@
                  begin="-559ms" repeatCount="indefinite"/>
         {% endif %}
       </rect>
-      <rect x="168.50" y="182" width="11.00" height="7" rx="4.2" ry="4.2">
+      <rect x="168.50" y="182" width="11.00" height="11.2" rx="4.2" ry="4.2">
         {% if state in ('playing', 'recent') %}
-        <animate attributeName="height" values="7;67;7" keyTimes="0;0.5;1"
+        <animate attributeName="height" values="11.2;71.2;11.2" keyTimes="0;0.5;1"
                  calcMode="spline" keySplines="0.31 0.11 0.46 0.95;0.60 0.17 0.73 0.71"
                  dur="{% if state == 'playing' %}718ms{% else %}1149ms{% endif %}"
                  begin="-372ms" repeatCount="indefinite"/>
@@ -382,9 +384,9 @@
                  begin="-372ms" repeatCount="indefinite"/>
         {% endif %}
       </rect>
-      <rect x="180.50" y="176" width="11.00" height="13" rx="4.2" ry="4.2">
+      <rect x="180.50" y="176" width="11.00" height="17.2" rx="4.2" ry="4.2">
         {% if state in ('playing', 'recent') %}
-        <animate attributeName="height" values="13;96;13" keyTimes="0;0.5;1"
+        <animate attributeName="height" values="17.2;100.2;17.2" keyTimes="0;0.5;1"
                  calcMode="spline" keySplines="0.20 0.03 0.38 0.83;0.45 0.10 0.81 0.69"
                  dur="{% if state == 'playing' %}974ms{% else %}1558ms{% endif %}"
                  begin="-201ms" repeatCount="indefinite"/>
@@ -398,9 +400,9 @@
                  begin="-201ms" repeatCount="indefinite"/>
         {% endif %}
       </rect>
-      <rect x="192.50" y="179" width="11.00" height="10" rx="4.2" ry="4.2">
+      <rect x="192.50" y="179" width="11.00" height="14.2" rx="4.2" ry="4.2">
         {% if state in ('playing', 'recent') %}
-        <animate attributeName="height" values="10;76;10" keyTimes="0;0.5;1"
+        <animate attributeName="height" values="14.2;80.2;14.2" keyTimes="0;0.5;1"
                  calcMode="spline" keySplines="0.34 0.11 0.49 0.93;0.42 0.02 0.84 0.96"
                  dur="{% if state == 'playing' %}934ms{% else %}1494ms{% endif %}"
                  begin="-771ms" repeatCount="indefinite"/>
@@ -414,9 +416,9 @@
                  begin="-771ms" repeatCount="indefinite"/>
         {% endif %}
       </rect>
-      <rect x="204.50" y="178" width="11.00" height="11" rx="4.2" ry="4.2">
+      <rect x="204.50" y="178" width="11.00" height="15.2" rx="4.2" ry="4.2">
         {% if state in ('playing', 'recent') %}
-        <animate attributeName="height" values="11;67;11" keyTimes="0;0.5;1"
+        <animate attributeName="height" values="15.2;71.2;15.2" keyTimes="0;0.5;1"
                  calcMode="spline" keySplines="0.17 0.03 0.38 0.89;0.48 0.16 0.80 0.78"
                  dur="{% if state == 'playing' %}674ms{% else %}1078ms{% endif %}"
                  begin="-227ms" repeatCount="indefinite"/>
@@ -430,9 +432,9 @@
                  begin="-227ms" repeatCount="indefinite"/>
         {% endif %}
       </rect>
-      <rect x="216.50" y="175" width="11.00" height="14" rx="4.2" ry="4.2">
+      <rect x="216.50" y="175" width="11.00" height="18.2" rx="4.2" ry="4.2">
         {% if state in ('playing', 'recent') %}
-        <animate attributeName="height" values="14;51;14" keyTimes="0;0.5;1"
+        <animate attributeName="height" values="18.2;55.2;18.2" keyTimes="0;0.5;1"
                  calcMode="spline" keySplines="0.31 0.10 0.52 1.00;0.47 0.13 0.72 0.93"
                  dur="{% if state == 'playing' %}953ms{% else %}1525ms{% endif %}"
                  begin="-251ms" repeatCount="indefinite"/>
@@ -446,9 +448,9 @@
                  begin="-251ms" repeatCount="indefinite"/>
         {% endif %}
       </rect>
-      <rect x="228.50" y="176" width="11.00" height="13" rx="4.2" ry="4.2">
+      <rect x="228.50" y="176" width="11.00" height="17.2" rx="4.2" ry="4.2">
         {% if state in ('playing', 'recent') %}
-        <animate attributeName="height" values="13;70;13" keyTimes="0;0.5;1"
+        <animate attributeName="height" values="17.2;74.2;17.2" keyTimes="0;0.5;1"
                  calcMode="spline" keySplines="0.33 0.05 0.42 0.98;0.45 0.10 0.77 0.93"
                  dur="{% if state == 'playing' %}847ms{% else %}1355ms{% endif %}"
                  begin="-23ms" repeatCount="indefinite"/>
@@ -462,9 +464,9 @@
                  begin="-23ms" repeatCount="indefinite"/>
         {% endif %}
       </rect>
-      <rect x="240.50" y="182" width="11.00" height="7" rx="4.2" ry="4.2">
+      <rect x="240.50" y="182" width="11.00" height="11.2" rx="4.2" ry="4.2">
         {% if state in ('playing', 'recent') %}
-        <animate attributeName="height" values="7;43;7" keyTimes="0;0.5;1"
+        <animate attributeName="height" values="11.2;47.2;11.2" keyTimes="0;0.5;1"
                  calcMode="spline" keySplines="0.37 0.07 0.37 0.82;0.39 0.13 0.73 0.87"
                  dur="{% if state == 'playing' %}752ms{% else %}1203ms{% endif %}"
                  begin="-122ms" repeatCount="indefinite"/>
@@ -478,9 +480,9 @@
                  begin="-122ms" repeatCount="indefinite"/>
         {% endif %}
       </rect>
-      <rect x="252.50" y="178" width="11.00" height="11" rx="4.2" ry="4.2">
+      <rect x="252.50" y="178" width="11.00" height="15.2" rx="4.2" ry="4.2">
         {% if state in ('playing', 'recent') %}
-        <animate attributeName="height" values="11;101;11" keyTimes="0;0.5;1"
+        <animate attributeName="height" values="15.2;105.2;15.2" keyTimes="0;0.5;1"
                  calcMode="spline" keySplines="0.16 0.12 0.49 0.77;0.52 0.05 0.74 0.86"
                  dur="{% if state == 'playing' %}843ms{% else %}1349ms{% endif %}"
                  begin="-211ms" repeatCount="indefinite"/>
@@ -494,9 +496,9 @@
                  begin="-211ms" repeatCount="indefinite"/>
         {% endif %}
       </rect>
-      <rect x="264.50" y="179" width="11.00" height="10" rx="4.2" ry="4.2">
+      <rect x="264.50" y="179" width="11.00" height="14.2" rx="4.2" ry="4.2">
         {% if state in ('playing', 'recent') %}
-        <animate attributeName="height" values="10;43;10" keyTimes="0;0.5;1"
+        <animate attributeName="height" values="14.2;47.2;14.2" keyTimes="0;0.5;1"
                  calcMode="spline" keySplines="0.21 0.06 0.43 0.99;0.57 0.18 0.80 0.70"
                  dur="{% if state == 'playing' %}817ms{% else %}1307ms{% endif %}"
                  begin="-221ms" repeatCount="indefinite"/>
@@ -510,9 +512,9 @@
                  begin="-221ms" repeatCount="indefinite"/>
         {% endif %}
       </rect>
-      <rect x="276.50" y="178" width="11.00" height="11" rx="4.2" ry="4.2">
+      <rect x="276.50" y="178" width="11.00" height="15.2" rx="4.2" ry="4.2">
         {% if state in ('playing', 'recent') %}
-        <animate attributeName="height" values="11;35;11" keyTimes="0;0.5;1"
+        <animate attributeName="height" values="15.2;39.2;15.2" keyTimes="0;0.5;1"
                  calcMode="spline" keySplines="0.29 0.05 0.42 0.81;0.47 0.02 0.81 0.85"
                  dur="{% if state == 'playing' %}851ms{% else %}1362ms{% endif %}"
                  begin="-388ms" repeatCount="indefinite"/>
@@ -526,9 +528,9 @@
                  begin="-388ms" repeatCount="indefinite"/>
         {% endif %}
       </rect>
-      <rect x="288.50" y="177" width="11.00" height="12" rx="4.2" ry="4.2">
+      <rect x="288.50" y="177" width="11.00" height="16.2" rx="4.2" ry="4.2">
         {% if state in ('playing', 'recent') %}
-        <animate attributeName="height" values="12;58;12" keyTimes="0;0.5;1"
+        <animate attributeName="height" values="16.2;62.2;16.2" keyTimes="0;0.5;1"
                  calcMode="spline" keySplines="0.33 0.03 0.52 0.79;0.51 0.02 0.71 0.75"
                  dur="{% if state == 'playing' %}559ms{% else %}894ms{% endif %}"
                  begin="-87ms" repeatCount="indefinite"/>
@@ -542,9 +544,9 @@
                  begin="-87ms" repeatCount="indefinite"/>
         {% endif %}
       </rect>
-      <rect x="300.50" y="175" width="11.00" height="14" rx="4.2" ry="4.2">
+      <rect x="300.50" y="175" width="11.00" height="18.2" rx="4.2" ry="4.2">
         {% if state in ('playing', 'recent') %}
-        <animate attributeName="height" values="14;94;14" keyTimes="0;0.5;1"
+        <animate attributeName="height" values="18.2;98.2;18.2" keyTimes="0;0.5;1"
                  calcMode="spline" keySplines="0.31 0.05 0.47 0.79;0.56 0.13 0.87 0.96"
                  dur="{% if state == 'playing' %}840ms{% else %}1344ms{% endif %}"
                  begin="-129ms" repeatCount="indefinite"/>
@@ -558,9 +560,9 @@
                  begin="-129ms" repeatCount="indefinite"/>
         {% endif %}
       </rect>
-      <rect x="312.50" y="180" width="11.00" height="9" rx="4.2" ry="4.2">
+      <rect x="312.50" y="180" width="11.00" height="13.2" rx="4.2" ry="4.2">
         {% if state in ('playing', 'recent') %}
-        <animate attributeName="height" values="9;87;9" keyTimes="0;0.5;1"
+        <animate attributeName="height" values="13.2;91.2;13.2" keyTimes="0;0.5;1"
                  calcMode="spline" keySplines="0.37 0.01 0.49 0.84;0.44 0.06 0.78 0.90"
                  dur="{% if state == 'playing' %}607ms{% else %}971ms{% endif %}"
                  begin="-591ms" repeatCount="indefinite"/>
@@ -574,9 +576,9 @@
                  begin="-591ms" repeatCount="indefinite"/>
         {% endif %}
       </rect>
-      <rect x="324.50" y="180" width="11.00" height="9" rx="4.2" ry="4.2">
+      <rect x="324.50" y="180" width="11.00" height="13.2" rx="4.2" ry="4.2">
         {% if state in ('playing', 'recent') %}
-        <animate attributeName="height" values="9;82;9" keyTimes="0;0.5;1"
+        <animate attributeName="height" values="13.2;86.2;13.2" keyTimes="0;0.5;1"
                  calcMode="spline" keySplines="0.36 0.10 0.50 0.96;0.60 0.15 0.74 0.89"
                  dur="{% if state == 'playing' %}725ms{% else %}1160ms{% endif %}"
                  begin="-295ms" repeatCount="indefinite"/>
@@ -590,9 +592,9 @@
                  begin="-295ms" repeatCount="indefinite"/>
         {% endif %}
       </rect>
-      <rect x="336.50" y="181" width="11.00" height="8" rx="4.2" ry="4.2">
+      <rect x="336.50" y="181" width="11.00" height="12.2" rx="4.2" ry="4.2">
         {% if state in ('playing', 'recent') %}
-        <animate attributeName="height" values="8;97;8" keyTimes="0;0.5;1"
+        <animate attributeName="height" values="12.2;101.2;12.2" keyTimes="0;0.5;1"
                  calcMode="spline" keySplines="0.16 0.11 0.35 0.88;0.45 0.11 0.70 0.87"
                  dur="{% if state == 'playing' %}873ms{% else %}1397ms{% endif %}"
                  begin="-181ms" repeatCount="indefinite"/>
@@ -606,9 +608,9 @@
                  begin="-181ms" repeatCount="indefinite"/>
         {% endif %}
       </rect>
-      <rect x="348.50" y="177" width="11.00" height="12" rx="4.2" ry="4.2">
+      <rect x="348.50" y="177" width="11.00" height="16.2" rx="4.2" ry="4.2">
         {% if state in ('playing', 'recent') %}
-        <animate attributeName="height" values="12;75;12" keyTimes="0;0.5;1"
+        <animate attributeName="height" values="16.2;79.2;16.2" keyTimes="0;0.5;1"
                  calcMode="spline" keySplines="0.24 0.12 0.35 0.99;0.52 0.04 0.74 0.73"
                  dur="{% if state == 'playing' %}889ms{% else %}1422ms{% endif %}"
                  begin="-599ms" repeatCount="indefinite"/>
@@ -622,9 +624,9 @@
                  begin="-599ms" repeatCount="indefinite"/>
         {% endif %}
       </rect>
-      <rect x="360.50" y="181" width="11.00" height="8" rx="4.2" ry="4.2">
+      <rect x="360.50" y="181" width="11.00" height="12.2" rx="4.2" ry="4.2">
         {% if state in ('playing', 'recent') %}
-        <animate attributeName="height" values="8;74;8" keyTimes="0;0.5;1"
+        <animate attributeName="height" values="12.2;78.2;12.2" keyTimes="0;0.5;1"
                  calcMode="spline" keySplines="0.21 0.11 0.41 0.99;0.56 0.11 0.84 0.69"
                  dur="{% if state == 'playing' %}645ms{% else %}1032ms{% endif %}"
                  begin="-608ms" repeatCount="indefinite"/>
@@ -638,9 +640,9 @@
                  begin="-608ms" repeatCount="indefinite"/>
         {% endif %}
       </rect>
-      <rect x="372.50" y="175" width="11.00" height="14" rx="4.2" ry="4.2">
+      <rect x="372.50" y="175" width="11.00" height="18.2" rx="4.2" ry="4.2">
         {% if state in ('playing', 'recent') %}
-        <animate attributeName="height" values="14;102;14" keyTimes="0;0.5;1"
+        <animate attributeName="height" values="18.2;106.2;18.2" keyTimes="0;0.5;1"
                  calcMode="spline" keySplines="0.21 0.13 0.42 0.80;0.61 0.05 0.80 0.82"
                  dur="{% if state == 'playing' %}710ms{% else %}1136ms{% endif %}"
                  begin="-613ms" repeatCount="indefinite"/>
@@ -654,9 +656,9 @@
                  begin="-613ms" repeatCount="indefinite"/>
         {% endif %}
       </rect>
-      <rect x="384.50" y="179" width="11.00" height="10" rx="4.2" ry="4.2">
+      <rect x="384.50" y="179" width="11.00" height="14.2" rx="4.2" ry="4.2">
         {% if state in ('playing', 'recent') %}
-        <animate attributeName="height" values="10;108;10" keyTimes="0;0.5;1"
+        <animate attributeName="height" values="14.2;112.2;14.2" keyTimes="0;0.5;1"
                  calcMode="spline" keySplines="0.21 0.13 0.44 0.85;0.55 0.01 0.92 0.96"
                  dur="{% if state == 'playing' %}693ms{% else %}1109ms{% endif %}"
                  begin="-552ms" repeatCount="indefinite"/>
@@ -670,9 +672,9 @@
                  begin="-552ms" repeatCount="indefinite"/>
         {% endif %}
       </rect>
-      <rect x="396.50" y="177" width="11.00" height="12" rx="4.2" ry="4.2">
+      <rect x="396.50" y="177" width="11.00" height="16.2" rx="4.2" ry="4.2">
         {% if state in ('playing', 'recent') %}
-        <animate attributeName="height" values="12;54;12" keyTimes="0;0.5;1"
+        <animate attributeName="height" values="16.2;58.2;16.2" keyTimes="0;0.5;1"
                  calcMode="spline" keySplines="0.22 0.15 0.52 0.99;0.47 0.04 0.81 0.93"
                  dur="{% if state == 'playing' %}683ms{% else %}1093ms{% endif %}"
                  begin="-455ms" repeatCount="indefinite"/>
@@ -686,9 +688,9 @@
                  begin="-455ms" repeatCount="indefinite"/>
         {% endif %}
       </rect>
-      <rect x="408.50" y="176" width="11.00" height="13" rx="4.2" ry="4.2">
+      <rect x="408.50" y="176" width="11.00" height="17.2" rx="4.2" ry="4.2">
         {% if state in ('playing', 'recent') %}
-        <animate attributeName="height" values="13;104;13" keyTimes="0;0.5;1"
+        <animate attributeName="height" values="17.2;108.2;17.2" keyTimes="0;0.5;1"
                  calcMode="spline" keySplines="0.27 0.05 0.45 0.98;0.56 0.13 0.84 0.82"
                  dur="{% if state == 'playing' %}919ms{% else %}1470ms{% endif %}"
                  begin="-618ms" repeatCount="indefinite"/>
@@ -702,9 +704,9 @@
                  begin="-618ms" repeatCount="indefinite"/>
         {% endif %}
       </rect>
-      <rect x="420.50" y="178" width="11.00" height="11" rx="4.2" ry="4.2">
+      <rect x="420.50" y="178" width="11.00" height="15.2" rx="4.2" ry="4.2">
         {% if state in ('playing', 'recent') %}
-        <animate attributeName="height" values="11;54;11" keyTimes="0;0.5;1"
+        <animate attributeName="height" values="15.2;58.2;15.2" keyTimes="0;0.5;1"
                  calcMode="spline" keySplines="0.32 0.09 0.41 0.85;0.46 0.01 0.90 0.86"
                  dur="{% if state == 'playing' %}575ms{% else %}920ms{% endif %}"
                  begin="-365ms" repeatCount="indefinite"/>
@@ -718,9 +720,9 @@
                  begin="-365ms" repeatCount="indefinite"/>
         {% endif %}
       </rect>
-      <rect x="432.50" y="176" width="11.00" height="13" rx="4.2" ry="4.2">
+      <rect x="432.50" y="176" width="11.00" height="17.2" rx="4.2" ry="4.2">
         {% if state in ('playing', 'recent') %}
-        <animate attributeName="height" values="13;74;13" keyTimes="0;0.5;1"
+        <animate attributeName="height" values="17.2;78.2;17.2" keyTimes="0;0.5;1"
                  calcMode="spline" keySplines="0.39 0.10 0.38 0.88;0.51 0.06 0.91 0.79"
                  dur="{% if state == 'playing' %}987ms{% else %}1579ms{% endif %}"
                  begin="-76ms" repeatCount="indefinite"/>
@@ -734,9 +736,9 @@
                  begin="-76ms" repeatCount="indefinite"/>
         {% endif %}
       </rect>
-      <rect x="444.50" y="182" width="11.00" height="7" rx="4.2" ry="4.2">
+      <rect x="444.50" y="182" width="11.00" height="11.2" rx="4.2" ry="4.2">
         {% if state in ('playing', 'recent') %}
-        <animate attributeName="height" values="7;64;7" keyTimes="0;0.5;1"
+        <animate attributeName="height" values="11.2;68.2;11.2" keyTimes="0;0.5;1"
                  calcMode="spline" keySplines="0.21 0.14 0.34 0.83;0.49 0.14 0.90 0.76"
                  dur="{% if state == 'playing' %}823ms{% else %}1317ms{% endif %}"
                  begin="-483ms" repeatCount="indefinite"/>
@@ -750,9 +752,9 @@
                  begin="-483ms" repeatCount="indefinite"/>
         {% endif %}
       </rect>
-      <rect x="456.50" y="175" width="11.00" height="14" rx="4.2" ry="4.2">
+      <rect x="456.50" y="175" width="11.00" height="18.2" rx="4.2" ry="4.2">
         {% if state in ('playing', 'recent') %}
-        <animate attributeName="height" values="14;36;14" keyTimes="0;0.5;1"
+        <animate attributeName="height" values="18.2;40.2;18.2" keyTimes="0;0.5;1"
                  calcMode="spline" keySplines="0.25 0.10 0.48 0.95;0.46 0.17 0.89 0.90"
                  dur="{% if state == 'playing' %}916ms{% else %}1466ms{% endif %}"
                  begin="-418ms" repeatCount="indefinite"/>
@@ -766,9 +768,9 @@
                  begin="-418ms" repeatCount="indefinite"/>
         {% endif %}
       </rect>
-      <rect x="468.50" y="179" width="11.00" height="10" rx="4.2" ry="4.2">
+      <rect x="468.50" y="179" width="11.00" height="14.2" rx="4.2" ry="4.2">
         {% if state in ('playing', 'recent') %}
-        <animate attributeName="height" values="10;68;10" keyTimes="0;0.5;1"
+        <animate attributeName="height" values="14.2;72.2;14.2" keyTimes="0;0.5;1"
                  calcMode="spline" keySplines="0.36 0.09 0.39 0.93;0.47 0.09 0.75 0.95"
                  dur="{% if state == 'playing' %}967ms{% else %}1547ms{% endif %}"
                  begin="-621ms" repeatCount="indefinite"/>
@@ -782,9 +784,9 @@
                  begin="-621ms" repeatCount="indefinite"/>
         {% endif %}
       </rect>
-      <rect x="480.50" y="175" width="11.00" height="14" rx="4.2" ry="4.2">
+      <rect x="480.50" y="175" width="11.00" height="18.2" rx="4.2" ry="4.2">
         {% if state in ('playing', 'recent') %}
-        <animate attributeName="height" values="14;72;14" keyTimes="0;0.5;1"
+        <animate attributeName="height" values="18.2;76.2;18.2" keyTimes="0;0.5;1"
                  calcMode="spline" keySplines="0.39 0.01 0.42 0.78;0.60 0.16 0.80 0.93"
                  dur="{% if state == 'playing' %}583ms{% else %}933ms{% endif %}"
                  begin="-234ms" repeatCount="indefinite"/>
@@ -798,9 +800,9 @@
                  begin="-234ms" repeatCount="indefinite"/>
         {% endif %}
       </rect>
-      <rect x="492.50" y="180" width="11.00" height="9" rx="4.2" ry="4.2">
+      <rect x="492.50" y="180" width="11.00" height="13.2" rx="4.2" ry="4.2">
         {% if state in ('playing', 'recent') %}
-        <animate attributeName="height" values="9;42;9" keyTimes="0;0.5;1"
+        <animate attributeName="height" values="13.2;46.2;13.2" keyTimes="0;0.5;1"
                  calcMode="spline" keySplines="0.28 0.14 0.47 0.89;0.48 0.01 0.75 0.95"
                  dur="{% if state == 'playing' %}985ms{% else %}1576ms{% endif %}"
                  begin="-391ms" repeatCount="indefinite"/>
@@ -814,9 +816,9 @@
                  begin="-391ms" repeatCount="indefinite"/>
         {% endif %}
       </rect>
-      <rect x="504.50" y="177" width="11.00" height="12" rx="4.2" ry="4.2">
+      <rect x="504.50" y="177" width="11.00" height="16.2" rx="4.2" ry="4.2">
         {% if state in ('playing', 'recent') %}
-        <animate attributeName="height" values="12;47;12" keyTimes="0;0.5;1"
+        <animate attributeName="height" values="16.2;51.2;16.2" keyTimes="0;0.5;1"
                  calcMode="spline" keySplines="0.24 0.01 0.36 0.76;0.54 0.13 0.79 0.91"
                  dur="{% if state == 'playing' %}839ms{% else %}1342ms{% endif %}"
                  begin="-8ms" repeatCount="indefinite"/>
@@ -830,9 +832,9 @@
                  begin="-8ms" repeatCount="indefinite"/>
         {% endif %}
       </rect>
-      <rect x="516.50" y="176" width="11.00" height="13" rx="4.2" ry="4.2">
+      <rect x="516.50" y="176" width="11.00" height="17.2" rx="4.2" ry="4.2">
         {% if state in ('playing', 'recent') %}
-        <animate attributeName="height" values="13;42;13" keyTimes="0;0.5;1"
+        <animate attributeName="height" values="17.2;46.2;17.2" keyTimes="0;0.5;1"
                  calcMode="spline" keySplines="0.16 0.05 0.44 0.81;0.42 0.14 0.76 0.71"
                  dur="{% if state == 'playing' %}743ms{% else %}1189ms{% endif %}"
                  begin="-525ms" repeatCount="indefinite"/>
@@ -846,9 +848,9 @@
                  begin="-525ms" repeatCount="indefinite"/>
         {% endif %}
       </rect>
-      <rect x="528.50" y="178" width="11.00" height="11" rx="4.2" ry="4.2">
+      <rect x="528.50" y="178" width="11.00" height="15.2" rx="4.2" ry="4.2">
         {% if state in ('playing', 'recent') %}
-        <animate attributeName="height" values="11;99;11" keyTimes="0;0.5;1"
+        <animate attributeName="height" values="15.2;103.2;15.2" keyTimes="0;0.5;1"
                  calcMode="spline" keySplines="0.33 0.14 0.50 0.96;0.45 0.13 0.79 0.81"
                  dur="{% if state == 'playing' %}522ms{% else %}835ms{% endif %}"
                  begin="-226ms" repeatCount="indefinite"/>
@@ -862,9 +864,9 @@
                  begin="-226ms" repeatCount="indefinite"/>
         {% endif %}
       </rect>
-      <rect x="540.50" y="176" width="11.00" height="13" rx="4.2" ry="4.2">
+      <rect x="540.50" y="176" width="11.00" height="17.2" rx="4.2" ry="4.2">
         {% if state in ('playing', 'recent') %}
-        <animate attributeName="height" values="13;97;13" keyTimes="0;0.5;1"
+        <animate attributeName="height" values="17.2;101.2;17.2" keyTimes="0;0.5;1"
                  calcMode="spline" keySplines="0.25 0.06 0.38 0.80;0.58 0.14 0.89 0.86"
                  dur="{% if state == 'playing' %}501ms{% else %}802ms{% endif %}"
                  begin="-168ms" repeatCount="indefinite"/>
@@ -878,9 +880,9 @@
                  begin="-168ms" repeatCount="indefinite"/>
         {% endif %}
       </rect>
-      <rect x="552.50" y="179" width="11.00" height="10" rx="4.2" ry="4.2">
+      <rect x="552.50" y="179" width="11.00" height="14.2" rx="4.2" ry="4.2">
         {% if state in ('playing', 'recent') %}
-        <animate attributeName="height" values="10;91;10" keyTimes="0;0.5;1"
+        <animate attributeName="height" values="14.2;95.2;14.2" keyTimes="0;0.5;1"
                  calcMode="spline" keySplines="0.39 0.11 0.46 0.82;0.46 0.07 0.78 0.81"
                  dur="{% if state == 'playing' %}975ms{% else %}1560ms{% endif %}"
                  begin="-32ms" repeatCount="indefinite"/>
@@ -894,9 +896,9 @@
                  begin="-32ms" repeatCount="indefinite"/>
         {% endif %}
       </rect>
-      <rect x="564.50" y="181" width="11.00" height="8" rx="4.2" ry="4.2">
+      <rect x="564.50" y="181" width="11.00" height="12.2" rx="4.2" ry="4.2">
         {% if state in ('playing', 'recent') %}
-        <animate attributeName="height" values="8;76;8" keyTimes="0;0.5;1"
+        <animate attributeName="height" values="12.2;80.2;12.2" keyTimes="0;0.5;1"
                  calcMode="spline" keySplines="0.18 0.00 0.49 0.93;0.62 0.18 0.91 0.85"
                  dur="{% if state == 'playing' %}778ms{% else %}1245ms{% endif %}"
                  begin="-403ms" repeatCount="indefinite"/>
@@ -910,9 +912,9 @@
                  begin="-403ms" repeatCount="indefinite"/>
         {% endif %}
       </rect>
-      <rect x="576.50" y="174" width="11.00" height="15" rx="4.2" ry="4.2">
+      <rect x="576.50" y="174" width="11.00" height="19.2" rx="4.2" ry="4.2">
         {% if state in ('playing', 'recent') %}
-        <animate attributeName="height" values="15;47;15" keyTimes="0;0.5;1"
+        <animate attributeName="height" values="19.2;51.2;19.2" keyTimes="0;0.5;1"
                  calcMode="spline" keySplines="0.27 0.03 0.35 0.81;0.49 0.10 0.72 0.94"
                  dur="{% if state == 'playing' %}544ms{% else %}870ms{% endif %}"
                  begin="-299ms" repeatCount="indefinite"/>
@@ -926,9 +928,9 @@
                  begin="-299ms" repeatCount="indefinite"/>
         {% endif %}
       </rect>
-      <rect x="588.50" y="174" width="11.00" height="15" rx="4.2" ry="4.2">
+      <rect x="588.50" y="174" width="11.00" height="19.2" rx="4.2" ry="4.2">
         {% if state in ('playing', 'recent') %}
-        <animate attributeName="height" values="15;83;15" keyTimes="0;0.5;1"
+        <animate attributeName="height" values="19.2;87.2;19.2" keyTimes="0;0.5;1"
                  calcMode="spline" keySplines="0.29 0.08 0.47 0.92;0.55 0.06 0.77 0.73"
                  dur="{% if state == 'playing' %}990ms{% else %}1584ms{% endif %}"
                  begin="-861ms" repeatCount="indefinite"/>
