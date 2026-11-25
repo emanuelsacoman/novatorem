@@ -174,6 +174,27 @@ def palette_from_cover(data):
         return DEFAULT_PALETTE.copy()
 
 
+def relative_luminance(hex_rgb):
+    """WCAG relative luminance for a validated RGB hex value."""
+    channels = [int(hex_rgb[index:index + 2], 16) / 255 for index in (0, 2, 4)]
+    linear = [channel / 12.92 if channel <= .04045 else ((channel + .055) / 1.055) ** 2.4 for channel in channels]
+    return .2126 * linear[0] + .7152 * linear[1] + .0722 * linear[2]
+
+
+def readable_album_tint(color, minimum_contrast):
+    """Keep the album's hue while lightening it enough for dark-glass text."""
+    background = "26343d"  # Conservative, brighter than our text contrast veil.
+    original = [int(color[index:index + 2], 16) for index in (0, 2, 4)]
+    for amount in range(9, 101):
+        fraction = amount / 100
+        mixed = [round(component + (255 - component) * fraction) for component in original]
+        candidate = "".join(f"{component:02x}" for component in mixed)
+        ratio = (relative_luminance(candidate) + .05) / (relative_luminance(background) + .05)
+        if ratio >= minimum_contrast:
+            return candidate
+    return "ffffff"
+
+
 def album_artwork(track):
     """Fetch Spotify-CDN art once; derive the full effect palette from its pixels."""
     if not track:
@@ -207,6 +228,8 @@ def build_view(track, label, state):
             "artist": "Check back for new music",
             "album_image": "",
             **DEFAULT_PALETTE,
+            "title_color": readable_album_tint(DEFAULT_PALETTE["accent_4"], 7),
+            "artist_color": readable_album_tint(DEFAULT_PALETTE["accent_2"], 4.5),
             "track_url": "",
             "state": state,
             "label": label,
@@ -222,6 +245,8 @@ def build_view(track, label, state):
         "artist": shorten(artist, 34),
         "album_image": image,
         **palette,
+        "title_color": readable_album_tint(palette["accent_4"], 7),
+        "artist_color": readable_album_tint(palette["accent_2"], 4.5),
         "track_url": spotify_url((track.get("external_urls") or {}).get("spotify"), "track"),
         "state": state,
         "label": label,
