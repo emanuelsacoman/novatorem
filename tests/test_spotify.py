@@ -190,9 +190,58 @@ class SpotifyWidgetTests(unittest.TestCase):
             response = spotify.app.test_client().get("/")
         body = response.get_data(as_text=True)
         self.assertIn("LAST PLAYED", body)
-        self.assertEqual(body.count('attributeName="height"'), 48)
-        self.assertEqual(body.count('attributeName="y"'), 48)
+        self.assertEqual(body.count('attributeName="height"'), 120)
+        self.assertEqual(body.count('attributeName="y"'), 120)
         self.assertIn('repeatCount="indefinite"', body)
+
+    def test_waveform_columns_touch_and_loop_smoothly(self):
+        import xml.etree.ElementTree as ET
+
+        with patch.object(spotify, "spotify_get", side_effect=[
+            None, {"items": [{"track": track("November")}]}
+        ]):
+            svg = spotify.app.test_client().get("/").get_data(as_text=True)
+        root = ET.fromstring(svg)
+        namespace = "{http://www.w3.org/2000/svg}"
+        equalizer = root.find(f".//{namespace}g[@id='equalizer-wave']")
+        self.assertIsNotNone(equalizer)
+        bars = equalizer.findall(f"{namespace}rect")
+        self.assertEqual(len(bars), 120)
+        self.assertNotIn('transform="translate(549,17)"', svg)
+
+        heights = []
+        for index, bar in enumerate(bars):
+            self.assertAlmostEqual(float(bar.get("x")), index * 5, places=2)
+            self.assertGreaterEqual(float(bar.get("width")), 5)
+            heights.append(float(bar.get("height")))
+            height_animation = bar.find(f"{namespace}animate[@attributeName='height']")
+            y_animation = bar.find(f"{namespace}animate[@attributeName='y']")
+            self.assertIsNotNone(height_animation)
+            self.assertIsNotNone(y_animation)
+            self.assertEqual(height_animation.get("calcMode"), "spline")
+            self.assertEqual(height_animation.get("dur"), "14s")
+            values = [float(v) for v in height_animation.get("values").split(";")]
+            ys = [float(v) for v in y_animation.get("values").split(";")]
+            self.assertEqual(len(values), 13)
+            self.assertEqual(values[0], values[-1])
+            self.assertEqual(ys[0], ys[-1])
+            self.assertEqual(len(height_animation.get("keySplines").split(";")), 12)
+            self.assertTrue(all(abs(v + y - 189) < .01 for v, y in zip(values, ys)))
+
+        self.assertGreater(len(set(heights)), 20)
+        self.assertLess(max(abs(a - b) for a, b in zip(heights, heights[1:])), 14)
+
+    def test_now_playing_wave_is_faster_than_recent(self):
+        import xml.etree.ElementTree as ET
+        with patch.object(spotify, "spotify_get", return_value={
+            "is_playing": True, "item": track()
+        }):
+            svg = spotify.app.test_client().get("/").get_data(as_text=True)
+        root = ET.fromstring(svg)
+        ns = "{http://www.w3.org/2000/svg}"
+        equalizer = root.find(f".//{ns}g[@id='equalizer-wave']")
+        self.assertEqual(len(equalizer.findall(f"{ns}rect")), 120)
+        self.assertEqual(equalizer.find(f"{ns}rect/{ns}animate").get("dur"), "8.4s")
 
     def test_empty_state_has_static_equalizer(self):
         with patch.object(spotify, "spotify_get", side_effect=[
