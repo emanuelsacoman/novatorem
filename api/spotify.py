@@ -186,8 +186,8 @@ def build_view(track, label, state):
     )
     image, accent = album_artwork(track)
     return {
-        "title": shorten(track["name"]),
-        "artist": shorten(artist, 40),
+        "title": shorten(track["name"], 23),
+        "artist": shorten(artist, 34),
         "album_image": image,
         "accent": accent,
         "track_url": spotify_url((track.get("external_urls") or {}).get("spotify"), "track"),
