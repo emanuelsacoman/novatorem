@@ -53,6 +53,18 @@
       <stop offset="40%" stop-color="#{{ accent_2 }}" stop-opacity=".64"/>
       <stop offset="100%" stop-color="#{{ accent_3 }}" stop-opacity=".22"/>
     </linearGradient>
+    <!-- Colored volumetric light pools; actual ellipse positions animate,
+         not only the gradient stops, so the backdrop visibly drifts. -->
+    <radialGradient id="glow-orb-primary">
+      <stop offset="0%" stop-color="#{{ accent }}" stop-opacity=".64"/>
+      <stop offset="43%" stop-color="#{{ accent_4 }}" stop-opacity=".24"/>
+      <stop offset="100%" stop-color="#{{ accent_4 }}" stop-opacity="0"/>
+    </radialGradient>
+    <radialGradient id="glow-orb-secondary">
+      <stop offset="0%" stop-color="#{{ accent_2 }}" stop-opacity=".58"/>
+      <stop offset="48%" stop-color="#{{ accent_3 }}" stop-opacity=".20"/>
+      <stop offset="100%" stop-color="#{{ accent_3 }}" stop-opacity="0"/>
+    </radialGradient>
     <filter id="soft-blur" x="-30%" y="-80%" width="160%" height="260%">
       <feGaussianBlur stdDeviation="7"/>
     </filter>
@@ -74,7 +86,29 @@
     <rect width="600" height="190" fill="url(#ambient-secondary)" opacity=".78">
       <animate attributeName="opacity" values=".85;.49;.91;.85" dur="11s" repeatCount="indefinite"/>
     </rect>
+    <!-- Animated background effects: glow pools and ribbon trails stay behind
+         the independent bars, the dark text veil, the cover and all labels. -->
+    <g id="background-effects">
+      <g id="ambient-glow-orbs">
+        <ellipse id="glow-orb-primary" cx="125" cy="55" rx="215" ry="143"
+                 fill="url(#glow-orb-primary)" opacity=".54">
+          <animate attributeName="cx" values="125;300;180;75;125" dur="9s" repeatCount="indefinite"/>
+          <animate attributeName="cy" values="55;88;142;80;55" dur="11s" repeatCount="indefinite"/>
+          <animate attributeName="opacity" values=".46;.72;.54;.62;.46" dur="8s" repeatCount="indefinite"/>
+        </ellipse>
+        <ellipse id="glow-orb-secondary" cx="490" cy="145" rx="205" ry="128"
+                 fill="url(#glow-orb-secondary)" opacity=".56">
+          <animate attributeName="cx" values="490;340;455;560;490" dur="10s" repeatCount="indefinite"/>
+          <animate attributeName="cy" values="145;65;35;110;145" dur="12s" repeatCount="indefinite"/>
+          <animate attributeName="opacity" values=".56;.36;.74;.49;.56" dur="7.5s" repeatCount="indefinite"/>
+        </ellipse>
+      </g>
+    </g>
     <!-- Colored glass, a light bloom and waveform trails behind all content. -->
+    <g id="background-wave-trails">
+      <animateTransform attributeName="transform" type="translate"
+                        values="-12 2;28 -9;-20 10;-12 2"
+                        dur="10.5s" repeatCount="indefinite"/>
     <path d="M-30 139 C90 80 145 33 240 63 S425 160 635 37" fill="none" stroke="url(#wave-stroke)"
           stroke-width="15" opacity=".30" filter="url(#soft-blur)">
       <animate attributeName="opacity" values=".16;.35;.22;.16" dur="13s" repeatCount="indefinite"/>
@@ -88,6 +122,7 @@
     </path>
     <path d="M-20 168 C125 146 232 171 338 151 S527 109 630 127" fill="none"
           stroke="#{{ accent_3 }}" stroke-width="1.5" opacity=".30"/>
+    </g>
 
     <!-- Main-style independent pulses; 50 bars, each 11 px wide with exactly 1 px gaps. -->
     <g id="equalizer-wave" opacity="{% if state in ('playing', 'recent') %}.89{% else %}.29{% endif %}"
@@ -897,8 +932,12 @@
     <!-- Text contrast layer ensures effects never compromise legibility. -->
     <rect x="185" y="26" width="408" height="135" rx="15" fill="url(#text-shade)" opacity=".79"/>
 
-    <!-- Small floating light particles. -->
-    <g fill="#{{ accent_2 }}" opacity=".42">
+    <!-- Tiny specular particles move separately, above the equalizer but
+         still under the glass, cover, and labels. -->
+    <g id="background-particles" fill="#{{ accent_2 }}" opacity=".34">
+      <animateTransform attributeName="transform" type="translate"
+                        values="0 0;-15 -6;8 5;0 0" dur="14s"
+                        repeatCount="indefinite"/>
       <circle cx="570" cy="100" r="1.5"/>
       <circle cx="520" cy="146" r="1"/>
       <circle cx="392" cy="25" r="1.2"/>
