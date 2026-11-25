@@ -224,9 +224,10 @@ class SpotifyWidgetTests(unittest.TestCase):
         self.assertIn("LAST PLAYED", body)
         self.assertEqual(body.count('attributeName="height"'), 120)
         self.assertEqual(body.count('attributeName="y"'), 120)
+        self.assertEqual(body.count('attributeName="opacity"'), 120)
         self.assertIn('repeatCount="indefinite"', body)
 
-    def test_waveform_columns_touch_and_loop_smoothly(self):
+    def test_equalizer_uses_main_style_independent_pulses(self):
         import xml.etree.ElementTree as ET
 
         with patch.object(spotify, "spotify_get", side_effect=[
@@ -234,43 +235,48 @@ class SpotifyWidgetTests(unittest.TestCase):
         ]):
             svg = spotify.app.test_client().get("/").get_data(as_text=True)
         root = ET.fromstring(svg)
-        namespace = "{http://www.w3.org/2000/svg}"
-        equalizer = root.find(f".//{namespace}g[@id='equalizer-wave']")
+        ns = "{http://www.w3.org/2000/svg}"
+        equalizer = root.find(f".//{ns}g[@id='equalizer-wave']")
         self.assertIsNotNone(equalizer)
-        bars = equalizer.findall(f"{namespace}rect")
+        bars = equalizer.findall(f"{ns}rect")
         self.assertEqual(len(bars), 120)
-        self.assertNotIn('transform="translate(549,17)"', svg)
-
-        heights = []
-        for index, bar in enumerate(bars):
-            self.assertAlmostEqual(float(bar.get("x")), index * 5, places=2)
+        durations, starts, peaks, splines = [], [], [], []
+        for i, bar in enumerate(bars):
+            self.assertAlmostEqual(float(bar.get("x")), i * 5, places=2)
             self.assertGreaterEqual(float(bar.get("width")), 5)
-            heights.append(float(bar.get("height")))
-            height_animation = bar.find(f"{namespace}animate[@attributeName='height']")
-            y_animation = bar.find(f"{namespace}animate[@attributeName='y']")
-            self.assertIsNotNone(height_animation)
-            self.assertIsNotNone(y_animation)
-            self.assertEqual(height_animation.get("calcMode"), "spline")
-            self.assertEqual(height_animation.get("dur"), "3.8s")
-            values = [float(v) for v in height_animation.get("values").split(";")]
-            ys = [float(v) for v in y_animation.get("values").split(";")]
-            self.assertEqual(len(values), 18)
-            self.assertEqual(values[0], values[-1])
-            self.assertEqual(ys[0], ys[-1])
-            self.assertEqual(len(height_animation.get("keySplines").split(";")), 17)
-            times = [float(v) for v in height_animation.get("keyTimes").split(";")]
-            self.assertEqual(len(times), 18)
-            self.assertEqual(times[0], 0)
-            self.assertEqual(times[-1], 1)
-            self.assertGreater(values[5], values[4] + 25)
-            self.assertGreater(values[9], values[8] + 25)
-            self.assertGreater(values[13], values[12] + 25)
-            self.assertTrue(all(abs(v + y - 189) < .01 for v, y in zip(values, ys)))
+            height = bar.find(f"{ns}animate[@attributeName='height']")
+            vertical = bar.find(f"{ns}animate[@attributeName='y']")
+            opacity = bar.find(f"{ns}animate[@attributeName='opacity']")
+            self.assertIsNotNone(height)
+            self.assertIsNotNone(vertical)
+            self.assertIsNotNone(opacity)
+            duration = int(height.get("dur").removesuffix("ms"))
+            durations.append(duration)
+            starts.append(height.get("begin"))
+            splines.append(height.get("keySplines"))
+            self.assertGreaterEqual(duration, 800)
+            self.assertLessEqual(duration, 1600)
+            self.assertEqual(height.get("calcMode"), "spline")
+            self.assertEqual(height.get("keyTimes"), "0;0.5;1")
+            self.assertEqual(len(height.get("keySplines").split(";")), 2)
+            self.assertEqual(opacity.get("values"), ".35;.95;.35")
+            self.assertEqual(height.get("begin"), vertical.get("begin"))
+            self.assertEqual(height.get("begin"), opacity.get("begin"))
+            self.assertEqual(height.get("dur"), vertical.get("dur"))
+            self.assertEqual(height.get("dur"), opacity.get("dur"))
+            heights = [float(v) for v in height.get("values").split(";")]
+            positions = [float(v) for v in vertical.get("values").split(";")]
+            self.assertEqual(len(heights), 3)
+            self.assertEqual(heights[0], heights[2])
+            self.assertGreater(heights[1], heights[0] + 17)
+            peaks.append(heights[1])
+            self.assertTrue(all(abs(h + y - 189) < .01 for h, y in zip(heights, positions)))
+        self.assertGreater(len(set(durations)), 65)
+        self.assertGreater(len(set(starts)), 65)
+        self.assertGreater(len(set(splines)), 65)
+        self.assertGreater(len(set(peaks)), 40)
 
-        self.assertGreater(len(set(heights)), 20)
-        self.assertLess(max(abs(a - b) for a, b in zip(heights, heights[1:])), 14)
-
-    def test_now_playing_wave_is_faster_than_recent(self):
+    def test_playing_uses_original_main_duration_range(self):
         import xml.etree.ElementTree as ET
         with patch.object(spotify, "spotify_get", return_value={
             "is_playing": True, "item": track()
@@ -279,8 +285,14 @@ class SpotifyWidgetTests(unittest.TestCase):
         root = ET.fromstring(svg)
         ns = "{http://www.w3.org/2000/svg}"
         equalizer = root.find(f".//{ns}g[@id='equalizer-wave']")
-        self.assertEqual(len(equalizer.findall(f"{ns}rect")), 120)
-        self.assertEqual(equalizer.find(f"{ns}rect/{ns}animate").get("dur"), "2.4s")
+        durations = [
+            int(rect.find(f"{ns}animate[@attributeName='height']").get("dur").removesuffix("ms"))
+            for rect in equalizer.findall(f"{ns}rect")
+        ]
+        self.assertEqual(len(durations), 120)
+        self.assertTrue(all(500 <= value <= 1000 for value in durations))
+        self.assertGreater(len(set(durations)), 65)
+        self.assertNotIn('transform="translate(549,17)"', svg)
 
     def test_empty_state_has_static_equalizer(self):
         with patch.object(spotify, "spotify_get", side_effect=[
