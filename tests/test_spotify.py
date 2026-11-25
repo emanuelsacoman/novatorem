@@ -389,11 +389,39 @@ class SpotifyWidgetTests(unittest.TestCase):
             self.assertEqual(heights[0], heights[2])
             self.assertGreater(heights[1], heights[0] + 17)
             peaks.append(heights[1])
-            self.assertTrue(all(abs(h + y - 189) < .01 for h, y in zip(heights, positions)))
+            # Lower rounded corners are clipped 4.2px below the visible card floor.
+            self.assertTrue(all(abs(h + y - 193.2) < .01 for h, y in zip(heights, positions)))
+            self.assertAlmostEqual(float(bar.get("height")) + float(bar.get("y")), 193.2, places=2)
+            self.assertGreaterEqual(193.2 - 189, float(bar.get("ry")))
         self.assertGreater(len(set(durations)), 30)
         self.assertGreater(len(set(starts)), 30)
         self.assertGreater(len(set(splines)), 30)
         self.assertGreater(len(set(peaks)), 25)
+
+    def test_square_bottoms_and_rounded_tops_when_paused(self):
+        import xml.etree.ElementTree as ET
+
+        with patch.object(spotify, "spotify_get", side_effect=[
+            None, {"items": []}
+        ]):
+            svg = spotify.app.test_client().get("/").get_data(as_text=True)
+
+        root = ET.fromstring(svg)
+        ns = "{http://www.w3.org/2000/svg}"
+        clip = root.find(f".//{ns}clipPath[@id='card-clip']/{ns}rect")
+        self.assertIsNotNone(clip)
+        visible_floor = float(clip.get("y")) + float(clip.get("height"))
+        self.assertEqual(visible_floor, 189)
+        bars = root.findall(f".//{ns}g[@id='equalizer-wave']/{ns}rect")
+        self.assertEqual(len(bars), 50)
+        for bar in bars:
+            radius = float(bar.get("ry"))
+            self.assertGreater(radius, 0)
+            bottom = float(bar.get("y")) + float(bar.get("height"))
+            # By clipping at or before the start of the lower corner, the
+            # bottom visible edge is flat despite the SVG rounded rectangle.
+            self.assertGreaterEqual(bottom - visible_floor, radius)
+            self.assertGreater(float(bar.get("height")), radius * 2)
 
     def test_playing_uses_original_main_duration_range(self):
         import xml.etree.ElementTree as ET
