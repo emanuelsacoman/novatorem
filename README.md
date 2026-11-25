@@ -11,6 +11,8 @@ Playback status is still preserved in the SVG accessibility description:
 - **recent**: gentler animation on the latest recently played track;
 - **paused / idle / unavailable**: static equalizer background.
 
+The typography adapts to each song: compact titles keep the prominent 29 px style; longer song names shrink slightly or wrap onto two lines. Artists also scale down as needed. Only exceptionally long text gets an ellipsis, and the SVG title keeps the complete song and artist names for accessibility. A clipping boundary prevents overflow even with different GitHub/browser fonts.
+
 The background equalizer now has **50 columns**, 11 px wide with **exactly 1 px of empty space between neighbors** (and a 0.5 px margin at either edge). A **single SVG gradient**, measured in global card coordinates rather than per-bar coordinates, spans the entire equalizer. Album palette colors sweep continuously from left to right in a seamless 10-second loop, even if the bars are static. Independently animated 500–1,000 ms pulses still follow the original `main` style; recently played tracks pulse more slowly. The backdrop now has additional visible animation: **two large album-colored glow orbs drift across the card**, while luminous ribbon trails and small light particles move at different speeds. These effects remain behind the cover and labels and continue even when no track is playing. Only the bars stop in idle states. SVG-native animations replace the original CSS/`foreignObject`, keeping the GitHub-README-friendly renderer. Motion is decorative and **not** derived from an audio stream. The widget still returns a safe SVG fallback if Spotify is unavailable.
 
 ## Embed in your profile
