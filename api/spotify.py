@@ -9,6 +9,7 @@ import logging
 import os
 import re
 import time
+import unicodedata
 from urllib.parse import urlparse
 
 import requests
@@ -44,9 +45,117 @@ def hex_color(value, default):
     return value.lower() if isinstance(value, str) and re.fullmatch(r"[0-9a-fA-F]{6}", value) else default
 
 
-def shorten(value, limit=34):
-    value = value if isinstance(value, str) else ""
-    return value if len(value) <= limit else value[: limit - 1].rstrip() + "…"
+# Text begins at 204px; a conservative 352px budget keeps native SVG
+# typography inside the card across platform font fallbacks.
+TEXT_MAX_WIDTH = 352
+
+
+def normalize_metadata(value):
+    """Flatten unsafe whitespace and control characters without losing accents."""
+    if not isinstance(value, str):
+        return ""
+    cleaned = "".join(" " if unicodedata.category(ch) in ("Cc", "Zl", "Zp") else ch for ch in value)
+    return " ".join(cleaned.split())
+
+
+def approximate_text_width(value, font_size, bold=False):
+    """Conservative glyph-width estimate without depending on server fonts.
+
+    SVG remains portable to GitHub's proxy; the layout also has a clip
+    region as a final safety net for client-side font metric differences.
+    """
+    units = 0.0
+    for ch in value:
+        kind = unicodedata.category(ch)
+        if kind in ("Mn", "Me", "Cf"):
+            continue
+        if unicodedata.east_asian_width(ch) in ("F", "W"):
+            units += 1.02
+        elif ch.isspace():
+            units += .33
+        elif ch in "ilI|!.,:;'\x60()[]":
+            units += .32
+        elif ch in "MW@#%&":
+            units += .89
+        elif ch.isupper():
+            units += .73
+        elif ch.isdigit():
+            units += .61
+        else:
+            units += .60
+    return units * font_size * (1.04 if bold else 1)
+
+
+def clip_to_width(value, font_size, max_width=TEXT_MAX_WIDTH, bold=False):
+    """Append an ellipsis only if shrinking alone cannot fit the copy."""
+    if approximate_text_width(value, font_size, bold) <= max_width:
+        return value
+    ellipsis = "…"
+    kept = []
+    for ch in value:
+        if approximate_text_width("".join(kept) + ch + ellipsis, font_size, bold) > max_width:
+            break
+        kept.append(ch)
+    return "".join(kept).rstrip() + ellipsis
+
+
+def split_title(value, font_size, max_width=TEXT_MAX_WIDTH):
+    """Wrap on a word boundary where possible, otherwise split long tokens."""
+    if approximate_text_width(value, font_size, bold=True) <= max_width:
+        return (value,)
+    end = 0
+    for index in range(1, len(value) + 1):
+        if approximate_text_width(value[:index], font_size, bold=True) > max_width:
+            break
+        end = index
+    boundary = value.rfind(" ", 0, end + 1)
+    if boundary >= max(1, int(end * .55)):
+        first, rest = value[:boundary].strip(), value[boundary:].strip()
+    else:
+        first, rest = value[:end].rstrip(), value[end:].lstrip()
+    if not first:
+        first, rest = value[:1], value[1:].lstrip()
+    return (first, rest) if rest else (first,)
+
+
+def music_text_layout(title, artist):
+    """Prefer original type sizes, then 2 title lines, and truncate only last."""
+    title = normalize_metadata(title) or "Unknown track"
+    artist = normalize_metadata(artist) or "Unknown artist"
+
+    for size in (29, 27, 25):
+        if approximate_text_width(title, size, bold=True) <= TEXT_MAX_WIDTH:
+            title_lines = (title,)
+            title_font_size = size
+            break
+    else:
+        title_lines = None
+        for size in (25, 23, 21):
+            candidate = split_title(title, size)
+            if len(candidate) == 2 and all(
+                approximate_text_width(line, size, bold=True) <= TEXT_MAX_WIDTH
+                for line in candidate
+            ):
+                title_lines = candidate
+                title_font_size = size
+                break
+        if title_lines is None:
+            title_font_size = 21
+            first, rest = split_title(title, title_font_size)
+            title_lines = (first, clip_to_width(rest, title_font_size, bold=True))
+
+    artist_font_size = 14
+    for size in (18, 17, 16, 15, 14):
+        if approximate_text_width(artist, size) <= TEXT_MAX_WIDTH:
+            artist_font_size = size
+            break
+    return {
+        "title_lines": title_lines,
+        "title_font_size": title_font_size,
+        "artist_display": clip_to_width(artist, artist_font_size),
+        "artist_font_size": artist_font_size,
+        "artist_y": 145 if len(title_lines) == 2 else 126,
+    }
 
 
 def spotify_url(url, kind):
@@ -226,6 +335,7 @@ def build_view(track, label, state):
         return {
             "title": "Nothing playing right now",
             "artist": "Check back for new music",
+            **music_text_layout("Nothing playing right now", "Check back for new music"),
             "album_image": "",
             **DEFAULT_PALETTE,
             "title_color": readable_album_tint(DEFAULT_PALETTE["accent_4"], 7),
@@ -240,9 +350,12 @@ def build_view(track, label, state):
         "Unknown artist",
     )
     image, palette = album_artwork(track)
+    full_title = normalize_metadata(track["name"]) or "Unknown track"
+    full_artist = normalize_metadata(artist) or "Unknown artist"
     return {
-        "title": shorten(track["name"], 23),
-        "artist": shorten(artist, 34),
+        "title": full_title,
+        "artist": full_artist,
+        **music_text_layout(full_title, full_artist),
         "album_image": image,
         **palette,
         "title_color": readable_album_tint(palette["accent_4"], 7),
