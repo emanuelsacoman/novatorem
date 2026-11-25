@@ -222,9 +222,9 @@ class SpotifyWidgetTests(unittest.TestCase):
             response = spotify.app.test_client().get("/")
         body = response.get_data(as_text=True)
         self.assertIn("LAST PLAYED", body)
-        self.assertEqual(body.count('attributeName="height"'), 120)
-        self.assertEqual(body.count('attributeName="y"'), 120)
-        self.assertGreaterEqual(body.count('attributeName="opacity"'), 120)  # Includes ambient wave opacity
+        self.assertEqual(body.count('attributeName="height"'), 100)
+        self.assertEqual(body.count('attributeName="y"'), 100)
+        self.assertGreaterEqual(body.count('attributeName="opacity"'), 103)  # Includes ambient wave opacity
         self.assertIn('repeatCount="indefinite"', body)
 
     def test_equalizer_uses_main_style_independent_pulses(self):
@@ -239,11 +239,13 @@ class SpotifyWidgetTests(unittest.TestCase):
         equalizer = root.find(f".//{ns}g[@id='equalizer-wave']")
         self.assertIsNotNone(equalizer)
         bars = equalizer.findall(f"{ns}rect")
-        self.assertEqual(len(bars), 120)
+        self.assertEqual(len(bars), 100)
         durations, starts, peaks, splines = [], [], [], []
         for i, bar in enumerate(bars):
-            self.assertAlmostEqual(float(bar.get("x")), i * 5, places=2)
-            self.assertGreaterEqual(float(bar.get("width")), 5)
+            self.assertAlmostEqual(float(bar.get("x")), .5 + i * 6, places=2)
+            self.assertAlmostEqual(float(bar.get("width")), 5.0, places=2)
+            if i > 0:
+                self.assertAlmostEqual(float(bar.get("x")) - (.5 + (i - 1) * 6 + 5), 1.0, places=2)
             height = bar.find(f"{ns}animate[@attributeName='height']")
             vertical = bar.find(f"{ns}animate[@attributeName='y']")
             opacity = bar.find(f"{ns}animate[@attributeName='opacity']")
@@ -289,10 +291,46 @@ class SpotifyWidgetTests(unittest.TestCase):
             int(rect.find(f"{ns}animate[@attributeName='height']").get("dur").removesuffix("ms"))
             for rect in equalizer.findall(f"{ns}rect")
         ]
-        self.assertEqual(len(durations), 120)
+        self.assertEqual(len(durations), 100)
         self.assertTrue(all(500 <= value <= 1000 for value in durations))
         self.assertGreater(len(set(durations)), 65)
         self.assertNotIn('transform="translate(549,17)"', svg)
+
+    def test_animated_background_keeps_album_colors_and_moves_even_when_idle(self):
+        import xml.etree.ElementTree as ET
+
+        with patch.object(spotify, "spotify_get", side_effect=[
+            None, {"items": []}
+        ]):
+            svg = spotify.app.test_client().get("/").get_data(as_text=True)
+
+        root = ET.fromstring(svg)
+        ns = "{http://www.w3.org/2000/svg}"
+        gradients = {
+            node.get("id"): node
+            for node in root.findall(f".//{ns}radialGradient")
+        }
+        for name in ("ambient-album", "ambient-secondary"):
+            self.assertIn(name, gradients)
+            animated_attributes = {
+                anim.get("attributeName")
+                for anim in gradients[name].findall(f"{ns}animate")
+            }
+            self.assertIn("cx", animated_attributes)
+            self.assertIn("cy", animated_attributes)
+
+        animated_lights = [
+            node for node in root.findall(f".//{ns}rect")
+            if node.get("fill") in ("url(#ambient-album)", "url(#ambient-secondary)")
+        ]
+        self.assertEqual(len(animated_lights), 2)
+        for rect in animated_lights:
+            animation = rect.find(f"{ns}animate[@attributeName='opacity']")
+            self.assertIsNotNone(animation)
+            self.assertEqual(animation.get("repeatCount"), "indefinite")
+        equalizer = root.find(f".//{ns}g[@id='equalizer-wave']")
+        self.assertEqual(len(equalizer.findall(f"{ns}rect")), 100)
+        self.assertEqual(len(equalizer.findall(f".//{ns}animate")), 0)
 
     def test_empty_state_has_static_equalizer(self):
         with patch.object(spotify, "spotify_get", side_effect=[
