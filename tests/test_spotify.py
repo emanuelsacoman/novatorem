@@ -108,6 +108,16 @@ class SpotifyWidgetTests(unittest.TestCase):
         self.assertIn('fill="#0d1117"', body)
         self.assertIn("s-maxage=60", response.headers["Cache-Control"])
 
+    def test_paused_track_survives_recent_history_error(self):
+        current = {"is_playing": False, "item": track("Paused Song")}
+        with patch.object(spotify, "spotify_get", side_effect=[
+            current, spotify.SpotifyUnavailable("recent history denied")
+        ]):
+            response = spotify.app.test_client().get("/")
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.headers["X-Widget-Status"], "ok")
+        self.assertIn("PAUSED", response.get_data(as_text=True))
+
     def test_offline_fallback_keeps_svg_available(self):
         with patch.object(spotify, "spotify_get", side_effect=spotify.SpotifyUnavailable("API error")):
             response = spotify.app.test_client().get("/")
