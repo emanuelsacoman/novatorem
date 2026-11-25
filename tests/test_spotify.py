@@ -359,6 +359,8 @@ class SpotifyWidgetTests(unittest.TestCase):
         for i, bar in enumerate(bars):
             self.assertAlmostEqual(float(bar.get("x")), .5 + i * 12, places=2)
             self.assertAlmostEqual(float(bar.get("width")), 11.0, places=2)
+            self.assertAlmostEqual(float(bar.get("rx")), 4.2, places=2)
+            self.assertAlmostEqual(float(bar.get("ry")), 4.2, places=2)
             if i > 0:
                 self.assertAlmostEqual(float(bar.get("x")) - (.5 + (i - 1) * 12 + 11), 1.0, places=2)
             height = bar.find(f"{ns}animate[@attributeName='height']")
