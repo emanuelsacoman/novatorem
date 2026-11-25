@@ -47,7 +47,7 @@ def hex_color(value, default):
 
 # Text begins at 204px; a conservative 352px budget keeps native SVG
 # typography inside the card across platform font fallbacks.
-TEXT_MAX_WIDTH = 352
+TEXT_MAX_WIDTH = 356
 
 
 def normalize_metadata(value):
@@ -130,7 +130,7 @@ def music_text_layout(title, artist):
             break
     else:
         title_lines = None
-        for size in (25, 23, 21):
+        for size in (25, 23, 21, 19, 17):
             candidate = split_title(title, size)
             if len(candidate) == 2 and all(
                 approximate_text_width(line, size, bold=True) <= TEXT_MAX_WIDTH
@@ -140,7 +140,7 @@ def music_text_layout(title, artist):
                 title_font_size = size
                 break
         if title_lines is None:
-            title_font_size = 21
+            title_font_size = 17
             first, rest = split_title(title, title_font_size)
             title_lines = (first, clip_to_width(rest, title_font_size, bold=True))
 
@@ -149,6 +149,8 @@ def music_text_layout(title, artist):
         if approximate_text_width(artist, size) <= TEXT_MAX_WIDTH:
             artist_font_size = size
             break
+    if len(title_lines) == 2:
+        artist_font_size = min(artist_font_size, max(15, title_font_size - 1))
     return {
         "title_lines": title_lines,
         "title_font_size": title_font_size,
