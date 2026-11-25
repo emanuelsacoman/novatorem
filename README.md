@@ -4,7 +4,7 @@ A Spotify music card for [Emanuel's GitHub profile](https://github.com/emanuelsa
 
 ## Visual design
 
-A clean 600 × 190 px, cinematic card: cover art, track title, artist and a small Spotify mark. There is **no visible playback status label** or footer. The colors mix Spotify green with an accent sampled from the album cover; decorative equalizer bars and light trails animate across the background, behind a contrast veil to preserve text legibility.
+A clean 600 × 190 px, cinematic card: cover art, track title, artist and a small Spotify mark. There is **no visible playback status label** or footer. Colors are sampled from each album cover with ColorThief (as in the original `main` implementation), then used for **all ambient gradients, animated bars, light trails and glowing frame details**. The Spotify logo is the only permanently green element. Monochrome covers produce monochrome lighting. A dark contrast veil keeps the track title and artist readable.
 
 Playback status is still preserved in the SVG accessibility description:
 - **playing**: energetic equalizer animation;
